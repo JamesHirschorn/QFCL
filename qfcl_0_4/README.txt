@@ -13,7 +13,7 @@ Twister (MT19937, MT19937-64 and some older variants) pseudo-random number
 generator, with a discard function that is amortized O(1) with respect to the
 jump size (i.e. how many random numbers are discarded). This is an 
 improvement over the C++ standard as well as the boost::random library 
-version of the Mersenne Twister PRNG which have O(n) discard. 
+version of the Mersenne Twister PRNG which both have O(n) discard. 
 
 The ability to discard, i.e. skip ahead, by large jumps is very important for
 applications that require parallel pseudo-random number generation, such as
@@ -47,9 +47,9 @@ discard regardless of the size of p. This jump matrix is also saved to disk
 so that it does not need to be recomputed in the future; moreover, the jump 
 matrix remains in memory so that further discards of size p by the current
 process can be performed without reading from disk. Note that the computation 
-of the jump matrix is O(log p). In the above example, one we have the jump 
-matrix, the set up can be done with N-1 jump operations and the cost does not 
-depend on p.
+of the jump matrix is O(log p). In the above example, once we have the jump 
+matrix, the setup can be done with N-1 discard operations and the cost does 
+not depend on p.
 
 Numerical Example
 -----------------
@@ -68,7 +68,7 @@ Twister), discarding p random numbers requires advancing the state of the
 generator p times. This is almost as costly as generating p random numbers 
 (it is actually C times as costly for a constant C < 1, since advancing to 
 the next state is a bit less work than generating the next number, but C is 
-not much smaller than 1). This means that to setup the MC simulation we need
+not much smaller than 1). This means that to set up the MC simulation we need
 to advance the state p times to get the second generator, then advance 
 another p times for the third generator and so on. In total the setup cost is 
 similar to generating 7p random numbers, nearly one trillion! Moreover,
