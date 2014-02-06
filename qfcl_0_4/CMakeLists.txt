@@ -52,15 +52,6 @@ set( BOOST_ROOT $ENV{Boost_DIR} CACHE PATH ${BOOST_ROOT_DOCSTRING} )
 option( BOOST_USE_EXTENSIONS "Use boost extensions (currently needed for some tests and examples)?" ON )
 
 #-----------------------------------------------
-# Eigen3
-#-----------------------------------------------
-
-# set EIGEN3_ROOT to your Eigen3 installation directory 
-# if CMake has trouble finding Eigen3 (can be done from CMake GUI)
-# set( EIGEN3_ROOT_DOCSTRING "Eigen3 installation directory: set if CMake has trouble finding Eigen3" )
-# set( EIGEN3_ROOT $ENV{EIGEN3_DIR} CACHE PATH ${EIGEN3_ROOT_DOCSTRING} )
-
-#-----------------------------------------------
 # NTL
 #-----------------------------------------------
 
@@ -73,6 +64,13 @@ if( DEFINED $ENV{NTL_DIR} )
 else( DEFINED $ENV{NTL_DIR} )
     set( NTL_ROOT ${NTL_ROOT_DEFAULT} CACHE PATH ${NTL_ROOT_DOCSTRING} )
 endif( DEFINED $ENV{NTL_DIR} )
+
+#-----------------------------------------------
+# QuantLib
+#-----------------------------------------------
+
+# whether to use QuantLib 
+option( USE_QUANTLIB "Use QuantLib?" OFF )
 
 # ------------------------------------------------------------------------
 # INCLUDES
@@ -96,6 +94,24 @@ if( BOOST_USE_EXTENSIONS )
 else( BOOST_USE_EXTENSIONS )
 	mark_as_advanced( FORCE BOOST_EXTENSIONS_ROOT )
 endif( BOOST_USE_EXTENSIONS )
+
+# QuantLib
+if( USE_QUANTLIB )
+	set( PREPROCESSOR_DEFINITIONS "USE_QUANTLIB" )
+	set( QUANTLIB_ROOT_DOCSTRING "QuantLib installation directory: set if CMake has trouble finding QuantLib" )
+	set( QUANTLIB_ROOT_DEFAULT "${BOOST_ROOT}/../QuantLib-1.3" )
+	if( DEFINED $ENV{QUANTLIB_ROOT} )
+		set( QUANTLIB_ROOT $ENV{QUANTLIB_ROOT} CACHE PATH ${QUANTLIB_ROOT_DOCSTRING} )
+	else( DEFINED $ENV{QUANTLIB_ROOT} )
+		set( QUANTLIB_ROOT ${QUANTLIB_ROOT_DEFAULT} CACHE PATH ${QUANTLIB_ROOT_DOCSTRING} )
+	endif( DEFINED $ENV{QUANTLIB_ROOT} )
+	find_package( QuantLib )
+	include_directories( ${QuantLib_INCLUDE_DIRS} )
+	link_directories( ${QuantLib_LIB_DIR} )
+	mark_as_advanced( CLEAR QUANTLIB_ROOT )
+else( USE_QUANTLIB )
+	mark_as_advanced( FORCE QUANTLIB_ROOT )
+endif( USE_QUANTLIB )
 
 include( NTL )
 #message( "NTL_ROOT:" ${NTL_ROOT} )

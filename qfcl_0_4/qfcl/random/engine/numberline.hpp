@@ -18,7 +18,10 @@
 	\date August 8, 2012
 */
 
-#include "named_adapter.hpp"
+#include <boost/mpl/string.hpp>
+
+#include <qfcl/utility/named_adapter.hpp>
+#include <qfcl/utility/tmp.hpp>
 
 namespace qfcl {
 namespace random {

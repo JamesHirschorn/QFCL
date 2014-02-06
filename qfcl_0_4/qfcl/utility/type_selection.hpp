@@ -32,7 +32,6 @@
 #include <qfcl/utility/for_each.hpp>
 #include <qfcl/utility/names.hpp>
 
-#include "adapters.hpp"
 #include "tmp.hpp"
 
 namespace qfcl {

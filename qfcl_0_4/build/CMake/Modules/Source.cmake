@@ -39,7 +39,8 @@ set( output_directory ./lib )
 set_target_properties( ${target_name} PROPERTIES 
 					   ARCHIVE_OUTPUT_DIRECTORY ${output_directory}
 					   LIBRARY_OUTPUT_DIRECTORY ${output_directory}
-					   RUNTIME_OUTPUT_DIRECTORY ${output_directory} )
+					   RUNTIME_OUTPUT_DIRECTORY ${output_directory} 
+					   COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINITIONS}" )
 #add_executable( ${target_name} ./build/src/qfcl_ignore.cpp ${qfcl} ${random} ${distribution} ${engine} ${utility} ${bits} ${simple} )
 #add_custom_target( ${target_name} SOURCES ${qfcl} ${random} ${distribution} ${engine} ${utility} )
 

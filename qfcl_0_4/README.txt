@@ -132,5 +132,7 @@ they are headers only. If you have already supplemented your boost
 installation, you can simply set BOOST_EXTENSIONS_ROOT to the root of your 
 boost installation in the CMake-GUI.
 
+The QuantLib library is optional (www.quantlib.org).
+
 In order to build the documentation, doxygen must be installed as well as a 
 LaTeX installation that is usable by doxygen. 

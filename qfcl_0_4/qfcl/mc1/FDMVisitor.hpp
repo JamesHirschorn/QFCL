@@ -18,7 +18,6 @@
 #include <boost/numeric/ublas/matrix.hpp>		// The matrix class.
 #include <boost/numeric/ublas/io.hpp>			// Sending to IO stream.
 
-#include <qfcl/utility/adapters.hpp>
 #include <qfcl/utility/tmp.hpp>
 
 #include "NormalGenerator.cpp"

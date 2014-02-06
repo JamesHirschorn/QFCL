@@ -111,7 +111,7 @@ set_target_properties( EngineSpeed PROPERTIES
 					   FOLDER test/QFCLPerformanceTests
 					   COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINITIONS}"
 					   OUTPUT_NAME engine_speed )
-target_link_libraries( EngineSpeed QFCL NTL ${Boost_LIBRARIES} ) #${asm_lib} )
+target_link_libraries( EngineSpeed QFCL NTL ${Boost_LIBRARIES} ${QuantLib_LIBRARIES} ) 
 
 set( source_files engine_profiler.cpp engine_common.ipp utility/cpu_timer.hpp )
 add_executable( EngineProfiler ${source_files} )
@@ -120,7 +120,7 @@ set_target_properties( EngineProfiler PROPERTIES
 					   FOLDER test/QFCLPerformanceTests
 					   COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINITIONS}"
 					   OUTPUT_NAME engine_profiler )
-target_link_libraries( EngineProfiler QFCL NTL ${Boost_LIBRARIES} ) #${asm_lib} )
+target_link_libraries( EngineProfiler QFCL NTL ${Boost_LIBRARIES} ) 
 
 add_executable( LinearGeneratorDiscardSpeed linear_generator_discard_speed.cpp )
 set_target_properties( LinearGeneratorDiscardSpeed PROPERTIES

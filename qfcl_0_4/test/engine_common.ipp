@@ -10,7 +10,10 @@ namespace mpl = boost::mpl;
 
 #include <qfcl/random/engine/counting.hpp>
 #include <qfcl/random/engine/mersenne_twister.hpp>
-#include <qfcl/random/engine/named_adapter.hpp>
+#include <qfcl/random/engine/boost_mt19937.hpp>
+#ifdef USE_QUANTLIB
+#include <qfcl/random/engine/quantlib_mt19937.hpp>
+#endif USE_QUANTLIB
 #include <qfcl/random/engine/twisted_generalized_feedback_shift_register.hpp>
 #include <qfcl/utility/tmp.hpp>
 
@@ -33,6 +36,9 @@ typedef mpl::push_back<reversible_linear_generator_engines, qfcl::random::boost_
 //! List of all engines
 typedef mpl::vector< qfcl::random::mt19937,
 					 qfcl::random::boost_mt19937,
+#ifdef USE_QUANTLIB
+					 qfcl::random::QuantLib_mt19937,
+#endif USE_QUANTLIB
 					 qfcl::random::reverse_mt19937,
 					 qfcl::random::mt19937_64,	
 					 qfcl::random::reverse_mt19937_64,

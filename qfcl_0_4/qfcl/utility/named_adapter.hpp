@@ -1,4 +1,4 @@
-/* qfcl/utility/adapters.hpp
+/* qfcl/utility/named_adapter.hpp
  *
  * Copyright (C) 2012 James Hirschorn <James.Hirschorn@gmail.com>
  *
@@ -7,10 +7,10 @@
  * (See accompanying file LICENSE.txt)
  */
 
-#ifndef QFCL_ADAPTERS_HPP
-#define QFCL_ADAPTERS_HPP
+#ifndef QFCL_NAMED_ADAPTER_HPP
+#define QFCL_NAMED_ADAPTER_HPP
 
-/*! \file qfcl/utility/adapters.hpp
+/*! \file qfcl/utility/named_adapter.hpp
 	\brief Various adapters.
 
 	\author James Hirschorn
@@ -83,4 +83,4 @@ struct adapter_traits
 */
 }	// namespace qfcl
 
-#endif  // QFCL_ADAPTERS_HPP
+#endif  QFCL_NAMED_ADAPTER_HPP
