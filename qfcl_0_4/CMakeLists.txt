@@ -72,6 +72,13 @@ endif( DEFINED $ENV{NTL_DIR} )
 # whether to use QuantLib 
 option( USE_QUANTLIB "Use QuantLib?" OFF )
 
+#-----------------------------------------------
+# C++11
+#-----------------------------------------------
+
+# whether to use C++11
+option( USE_CPP11 "Use C++11?" OFF )
+
 # ------------------------------------------------------------------------
 # INCLUDES
 # ------------------------------------------------------------------------
@@ -97,7 +104,7 @@ endif( BOOST_USE_EXTENSIONS )
 
 # QuantLib
 if( USE_QUANTLIB )
-	set( PREPROCESSOR_DEFINITIONS "USE_QUANTLIB" )
+	set( PREPROCESSOR_DEFINITIONS "${PREPROCESSOR_DEFINITIONS}; USE_QUANTLIB" )
 	set( QUANTLIB_ROOT_DOCSTRING "QuantLib installation directory: set if CMake has trouble finding QuantLib" )
 	set( QUANTLIB_ROOT_DEFAULT "${BOOST_ROOT}/../QuantLib-1.3" )
 	if( DEFINED $ENV{QUANTLIB_ROOT} )
@@ -116,6 +123,11 @@ endif( USE_QUANTLIB )
 include( NTL )
 #message( "NTL_ROOT:" ${NTL_ROOT} )
 
+# C++11
+
+if( USE_CPP11 )
+	set( PREPROCESSOR_DEFINITIONS "${PREPROCESSOR_DEFINITIONS}; USE_CPP11" )
+endif( USE_CPP11 )
 
 # ----------------------------------------------
 # add build rules for test suite

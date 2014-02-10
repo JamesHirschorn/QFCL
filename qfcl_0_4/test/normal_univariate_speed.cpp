@@ -1,17 +1,17 @@
-/* test/engine_speed.cpp
+/* test/normal_univariate_speed.cpp
  *
- * Copyright (C) 2012 James Hirschorn <James.Hirschorn@gmail.com>
+ * Copyright (C) 2014 James Hirschorn <James.Hirschorn@gmail.com>
  *
  * Use, modification and distribution are subject to 
  * the BOOST Software License, Version 1.0. 
  * (See accompanying file LICENSE.txt)
  */
 
-/*! \file test/engine_speed.cpp
-	\brief engine speed test
+/*! \file test/normal_univariate_speed.cpp
+	\brief normal univariate generation speed test
 
 	\author James Hirschorn
-	\date March 22, 2012
+	\date February 7, 2014
 */
 
 #include <iostream>
@@ -46,51 +46,89 @@ namespace po = boost::program_options;
 
 #include "utility/cpu_timer.hpp"
 
-#include "engine_common.ipp"
+#include "distribution_common.ipp"
 
+// PRNG engine
+typedef qfcl::random::mt19937 Engine;
 // default timer
-#define QFCL_TIMER rdtsc_timer
+#define QFCL_TIMER rdtsc_macro
 // default number of iterations per engine
 #define	QFCL_ITERATIONS 100000000
 
 // If you want to include speed tests for engines not satisfying the Named concept
 // (e.g. the boost::random engines)
-//#define INCLUDE_UNNAMED
+#define INCLUDE_UNNAMED
 
 /** timers */
 
 /* timing routines */
 
 // boost timer
-//template<typename Engine, typename CounterType>
-//inline
-//boost::timer::cpu_times time_engine_boost(Engine & e_, CounterType iterations) 
-//{
-//	using namespace boost::timer;
-//
-//	Engine e;
-//
-//	// Important! Prevent excessive optimization
-//	volatile typename Engine::result_type value;
-//
-//	cpu_timer timer;
-//
-//	// Note: For some reason this loop does not register as either user or system usage.
-//	for (; iterations > 0; --iterations)
-//	{
-//		value = e();
-//	}
-//
-//	timer.stop();
-//
-//	return timer.elapsed();
-//}
+template<typename Distribution, typename CounterType>
+inline
+boost::timer::cpu_times time_engine_boost(Distribution & d, Engine & e, CounterType iterations) 
+{
+	using namespace boost::timer;
+
+	// Important! Prevent excessive optimization
+	volatile typename Engine::result_type value;
+
+	cpu_timer timer;
+
+	// Note: For some reason this loop does not register as either user or system usage.
+	for (; iterations > 0; --iterations)
+	{
+		value = d(e);
+	}
+
+	timer.stop();
+
+	return timer.elapsed();
+}
 
 #ifdef QFCL_RDTSCP
 typedef qfcl::timer::rdtscp_timer timer_type;
 #else
 typedef qfcl::timer::rdtsc_timer timer_type;
 #endif
+
+//time stamp counter
+template<typename Distribution, typename CounterType>
+inline
+uint64_t time_distribution_TSC(Distribution & d, Engine & e, CounterType iterations) 
+{
+	volatile typename Engine::result_type value;
+
+    timer_type timer;
+
+	uint64_t start = timer();
+
+	for (; iterations > 0; --iterations)
+	{
+		value = d(e);
+	}
+
+	uint64_t end = timer();
+
+	return end - start;
+}
+
+#define TIMER_MACRO_TSC(Engine, e, iter, result)\
+	volatile typename Engine::result_type value;\
+												\
+    timer_type timer;							\
+												\
+	uint64_t start = timer();					\
+												\
+	for (CounterType i = 0; i < iter; ++i)		\
+	{											\
+		value = e();							\
+	}											\
+												\
+	uint64_t end = timer();						\
+												\
+	result = end - start
+
 
 // output results
 
@@ -117,26 +155,27 @@ void show_timing_results(boost::timer::cpu_times t, CounterType iterations, cons
 
 /* timer object */
 
-// generic engine timer for use with TMP
+// generic
 template<typename CounterType, typename Timer>
-struct engine_timer_object
+struct timer_object
 {
-	engine_timer_object(CounterType iter, double freq) 
-		: iterations_(iter), cpu_freq_(freq) {} 
+	timer_object(Engine & e, CounterType iter, double freq) 
+		: e_(e), iterations_(iter), cpu_freq_(freq) {} 
 
-	template<typename Engine>
-	void operator()(Engine & e) 
+	template<typename Distribution>
+	void operator()(Distribution & d) 
 	{
 		Timer t;
-		auto result = t(e, iterations_);
+		auto result = t(d, e_, iterations_);
 
 #ifdef INCLUDE_UNNAMED
-		show_timing_results(result, iterations_, qfcl::names::name_or_typename(e), cpu_freq_);
+		show_timing_results(result, iterations_, qfcl::names::name_or_typename(d), cpu_freq_);
 #else
-		show_timing_results(result, iterations_, qfcl::names::name(e), cpu_freq_);
+		show_timing_results(result, iterations_, qfcl::names::name(d), cpu_freq_);
 #endif // INCLUDE_UNNAMED
 	}
 
+	Engine e_;
 	CounterType iterations_;
 	double cpu_freq_;
 };
@@ -145,6 +184,8 @@ struct engine_timer_object
 
 namespace detail {
 	typedef mpl::string<'r','d','t','s','c'>::type rdtsc_string;
+	typedef mpl::string<'m','a','c','r','o'>::type macro_string;
+	typedef qfcl::tmp::concatenate<rdtsc_string, mpl::string<'_'>::type, macro_string>::type rdtsc_macro_string;
 	typedef mpl::string<'b','o','o','s','t'>::type boost_string;
 }	// namespace detail
 
@@ -152,25 +193,11 @@ struct boost_timer
 {
 	typedef boost::timer::cpu_times result_type;
 
-	template<typename Engine, typename CounterType>
-	result_type operator()(Engine &, CounterType iterations) const
+	template<typename Distribution, typename CounterType>
+	result_type operator()(Distribution & d, Engine &, CounterType iterations) const
 	{
 		Engine e;
-		
-		// Important! Prevent excessive optimization
-		volatile typename Engine::result_type value;
-
-		boost::timer::cpu_timer timer;
-
-		// Note: For some reason this loop does not register as either user or system usage.
-		for (; iterations > 0; --iterations)
-		{
-			value = e();
-		}
-
-		timer.stop();
-
-		return timer.elapsed();
+		return time_engine_boost(d, e, iterations); 
 	}
 
 	static string description()
@@ -181,58 +208,69 @@ struct boost_timer
 	typedef detail::boost_string name;
 };
 
-// time stamp counter timer
-struct rdtsc_timer
+struct rdtsc
 {
 	typedef uint64_t result_type;
 
-	template<typename Engine, typename CounterType>
-	result_type operator()(Engine &, CounterType iterations) const
+	template<typename Distribution, typename CounterType>
+	result_type operator()(Distribution &, Engine & e, CounterType iterations) const
 	{
-		Engine e;
-	
-		volatile typename Engine::result_type value;
-												
-		timer_type timer;								
-												
-		uint64_t start = timer();					
-												
-		for (CounterType i = 0; i < iterations; ++i)		
-		{											
-			value = e();							
-		}											
-												
-		uint64_t end = timer();						
-												
-		uint64_t result = end - start;	
-
-		return result;
+		Distribution d;
+		return time_distribution_TSC(d, e, iterations); 
 	}
 
 	static string description()
 	{
-		return "time stamp counter (non-serialized)";
+		return "time stamp counter (non-serialized), engine passed by reference";
 	}
 
 	typedef detail::rdtsc_string name;
 };
 
+//struct rdtsc_macro
+//{
+//	typedef uint64_t result_type;
+//
+//	template<typename Distribution, typename CounterType>
+//	result_type operator()(Distribution &, Engine & e, CounterType iterations) const
+//	{
+//		Distribution d;
+//		result_type result;
+//		TIMER_MACRO_TSC(d, e, iterations, result);
+//		return result;
+//	}
+//
+//	static string description()
+//	{
+//		return "time stamp counter (non-serialized) as a macro";
+//	}
+//
+//	typedef detail::rdtsc_macro_string name;
+//};
+
 // list of timers
-typedef mpl::vector<rdtsc_timer, boost_timer> timer_list;
+typedef mpl::vector<rdtsc, boost_timer> timer_list;
 
 // We want to avoid double type-selection for now, so we use the following "kludge".
-template<typename EngineList, typename CounterType, typename SelectionMethod>
+template<typename DistributionList, typename CounterType, typename SelectionMethod>
 void perform_speed_test(const vector<string> & engine_params, const string & timer_name, CounterType iterations, double cpu_freq)
 {
+	Engine e;
+
 	if (timer_name == "rdtsc")
-        qfcl::type_selection::for_each_selector<EngineList, SelectionMethod>(
+        qfcl::type_selection::for_each_selector<DistributionList, SelectionMethod>(
 			engine_params,
-			engine_timer_object<CounterType, rdtsc_timer>(iterations, cpu_freq)
+			timer_object<CounterType, rdtsc>(e, iterations, cpu_freq)
 		);
+	//else if (timer_name == "rdtsc_macro")
+ //       qfcl::type_selection::for_each_selector<DistributionList, SelectionMethod>(
+	//		engine_params, 
+	//		timer_object<CounterType, rdtsc_macro>(e, iterations, cpu_freq)
+	//	);
 	else if (timer_name == "boost")
-        qfcl::type_selection::for_each_selector<EngineList, SelectionMethod>(
+        qfcl::type_selection::for_each_selector<DistributionList, SelectionMethod>(
 			engine_params, 
-			engine_timer_object<CounterType, boost_timer>(iterations, cpu_freq)
+			timer_object<CounterType, boost_timer>(e, iterations, cpu_freq)
 		);
 	else
         throw std::logic_error("bad program");
@@ -240,6 +278,7 @@ void perform_speed_test(const vector<string> & engine_params, const string & tim
 
 /** output function object */
 
+// boost::lambda did not work for this.
 struct named_functor
 {
 	typedef void result_type;
@@ -277,25 +316,30 @@ int main(int argc, char * argv[])
 		("help,h", "this help message")
 		("version,v", "version info");
 	
+	string distributions;
+	string family;
 	string timer_param;
 
-	string default_timer_name = mpl::c_str<QFCL_TIMER::name>::value;
-	
-	po::options_description engine_option("Engine and Timer options");
+	po::options_description engine_option("Distribution and Timer options");
 	engine_option.add_options()
-		("engine,e", 
-		 po::value< vector<string> >() -> composing(),
-		 "specifies an engine to test. Use this options multiple times to specify a list of engines. " \
-		 "All engines are tested if this option is not specified. " \
-		 "Type -e h [ --engine help ] for a list of all available engines.")
-		("timer,t", po::value<string>(&timer_param) -> default_value(default_timer_name),
+		("distributions,d", 
+		 po::value<string>(&distributions),
+		 "specifies a single or comma separated list of distribution(s) to be tested. " \
+		 "All distributions are tested if neither this option " \
+		 "nor the -f option is not specified.\n" \
+		 "-d l [ --distributions list ] for a list of all available distributions.")
+		("family,f",
+		 po::value<string>(&family),
+		 "specifies a family of distributions to test.\n" \
+		 "-f l [ --family list ] for a list of all available families.")
+		("timer,t", po::value<string>(&timer_param) -> default_value(stringize(QFCL_TIMER)),
 		 "specifies which timer to use. " \
 		 "Type -t h [ --timer help ] for a list of all timers.");
 
 	po::options_description primary_options("Alternatives to positional command line parameters");
 	primary_options.add_options()
 		("iterations,i", po::value<CounterType>(&iterations) -> default_value(QFCL_ITERATIONS),
-		 "number of random numbers to generate for each engine");
+		 "number of random numbers to generate for each distribution");
 
 	po::options_description command_line_options;
 	command_line_options.add(generic_options).add(engine_option).add(primary_options);
@@ -331,12 +375,12 @@ int main(int argc, char * argv[])
 
 	vector<string> engine_params; 
 #ifdef INCLUDE_UNNAMED
-	typedef mpl::push_front<all_engines, boost::random::mt19937>::type engine_list;
+	typedef mpl::push_front<all_distributions, boost::random::uniform_01<>>::type distribution_list;
 #else
-	typedef all_engines engine_list;
+	typedef all_distributions distribution_list;
 #endif // INCLUDE_UNNAMED
 
-	auto engine_names = qfcl::names::get_name_or_typenames<engine_list>(); 
+	auto distribution_names = qfcl::names::get_name_or_typenames<distribution_list>(); 
 		
 	if (vm.count("engine"))
 	{
@@ -348,7 +392,7 @@ int main(int argc, char * argv[])
 			std::ostringstream oss;
 			const size_t indent_width = 5;
 
-			BOOST_FOREACH(string s, engine_names)
+			BOOST_FOREACH(string s, distribution_names)
 			{
 				oss << std::setw(indent_width) << "" << s << std::endl;
 			}
@@ -360,7 +404,7 @@ int main(int argc, char * argv[])
 	}
 	else // all engines
 	{
-		engine_params = engine_names;
+		engine_params = distribution_names;
 	}
 
 	auto timer_names = qfcl::names::get_names<timer_list>();
@@ -371,6 +415,8 @@ int main(int argc, char * argv[])
 
 		if (timer_param == "help" || timer_param == "h")
 		{
+			using namespace boost::lambda;
+
 			std::ostringstream oss;
 			const size_t indent_width = 5;
 
@@ -395,20 +441,11 @@ int main(int argc, char * argv[])
     cout << boost::format("CPU frequency: %|1$.5| GHz\n\n") % (cpu_frequency / qfcl::timer::one_second);
 
 	cout << qfcl::io::custom_formatted(iterations) << " iterations per engine:" << endl << endl;
-	
-	// Checked that TMP is not the reason that hard-coded is faster.
-	//rdtsc_timer t;
-	//qfcl::random::mt19937 e;
-	//auto result = t(e, iterations);
-	//
-	//show_timing_results(result, iterations, qfcl::names::name(e), cpu_frequency);
-
-	//exit(EXIT_SUCCESS);
 
 #ifdef INCLUDE_UNNAMED
-	perform_speed_test<engine_list, CounterType, NAME_OR_TYPENAME>(engine_params, timer_param, iterations, cpu_frequency);
+	perform_speed_test<distribution_list, CounterType, NAME_OR_TYPENAME>(engine_params, timer_param, iterations, cpu_frequency);
 #else
-	perform_speed_test<engine_list, CounterType, NAME>(engine_params, timer_param, iterations, cpu_frequency);
+	perform_speed_test<distribution_list, CounterType, NAME>(engine_params, timer_param, iterations, cpu_frequency);
 #endif // INCLUDE_UNNAMED
 
 	cout << "Press Enter to exit.";

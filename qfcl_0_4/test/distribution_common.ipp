@@ -18,7 +18,13 @@ namespace mpl = boost::mpl;
 #include <qfcl/random/engine/twisted_generalized_feedback_shift_register.hpp>
 #include <qfcl/utility/tmp.hpp>
 
-// list of engines
+// list of normal univariate distributions
+typedef mpl::vector< boost::random::normal_distribution<> >
+normal_distributions;
+
+typedef mpl::vector< boost::random::normal_distribution<> >
+all_distributions;
+
 typedef mpl::vector< mpl::pair<qfcl::random::mt11213a,		qfcl::random::reverse_mt11213a>,
 					 mpl::pair<qfcl::random::mt11213b,		qfcl::random::reverse_mt11213b>,
 					 mpl::pair<qfcl::random::mt19937,		qfcl::random::reverse_mt19937>,

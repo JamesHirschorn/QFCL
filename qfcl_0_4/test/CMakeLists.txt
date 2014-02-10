@@ -113,6 +113,24 @@ set_target_properties( EngineSpeed PROPERTIES
 					   OUTPUT_NAME engine_speed )
 target_link_libraries( EngineSpeed QFCL NTL ${Boost_LIBRARIES} ${QuantLib_LIBRARIES} ) 
 
+set( source_files engine_speed_hard_coded.cpp engine_common.ipp utility/cpu_timer.hpp )
+add_executable( EngineSpeedHardCoded ${source_files} )
+source_group( "Source Files" FILES ${source_files} )
+set_target_properties( EngineSpeedHardCoded PROPERTIES
+					   FOLDER test/QFCLPerformanceTests
+					   COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINITIONS}"
+					   OUTPUT_NAME engine_speed )
+target_link_libraries( EngineSpeedHardCoded QFCL NTL ${Boost_LIBRARIES} ${QuantLib_LIBRARIES} ) 
+
+set( source_files normal_univariate_speed.cpp engine_common.ipp utility/cpu_timer.hpp )
+add_executable( NormalUnivariateSpeed ${source_files} )
+source_group( "Source Files" FILES ${source_files} )
+set_target_properties( NormalUnivariateSpeed PROPERTIES
+					   FOLDER test/QFCLPerformanceTests
+					   COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINITIONS}"
+					   OUTPUT_NAME normal_univariate_speed )
+target_link_libraries( NormalUnivariateSpeed QFCL NTL ${Boost_LIBRARIES} ${QuantLib_LIBRARIES} ) 
+
 set( source_files engine_profiler.cpp engine_common.ipp utility/cpu_timer.hpp )
 add_executable( EngineProfiler ${source_files} )
 source_group( "Source Files" FILES ${source_files} )

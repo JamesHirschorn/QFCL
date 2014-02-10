@@ -52,7 +52,6 @@ typedef qfcl::tmp::concatenate<_boost_prefix, mt19937_name>::type boost_mt19937_
 
 typedef named_adapter<boost::mt19937, detail::boost_mt19937_name> boost_mt19937;
 
-
 //! @}
 
 }	// namespace random
