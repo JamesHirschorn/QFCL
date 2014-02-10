@@ -51,7 +51,7 @@ namespace po = boost::program_options;
 // PRNG engine
 typedef qfcl::random::mt19937 Engine;
 // default timer
-#define QFCL_TIMER rdtsc_macro
+#define QFCL_TIMER rdtsc_variate_timer
 // default number of iterations per engine
 #define	QFCL_ITERATIONS 100000000
 
@@ -63,72 +63,11 @@ typedef qfcl::random::mt19937 Engine;
 
 /* timing routines */
 
-// boost timer
-template<typename Distribution, typename CounterType>
-inline
-boost::timer::cpu_times time_engine_boost(Distribution & d, Engine & e, CounterType iterations) 
-{
-	using namespace boost::timer;
-
-	// Important! Prevent excessive optimization
-	volatile typename Engine::result_type value;
-
-	cpu_timer timer;
-
-	// Note: For some reason this loop does not register as either user or system usage.
-	for (; iterations > 0; --iterations)
-	{
-		value = d(e);
-	}
-
-	timer.stop();
-
-	return timer.elapsed();
-}
-
 #ifdef QFCL_RDTSCP
 typedef qfcl::timer::rdtscp_timer timer_type;
 #else
 typedef qfcl::timer::rdtsc_timer timer_type;
 #endif
-
-//time stamp counter
-template<typename Distribution, typename CounterType>
-inline
-uint64_t time_distribution_TSC(Distribution & d, Engine & e, CounterType iterations) 
-{
-	volatile typename Engine::result_type value;
-
-    timer_type timer;
-
-	uint64_t start = timer();
-
-	for (; iterations > 0; --iterations)
-	{
-		value = d(e);
-	}
-
-	uint64_t end = timer();
-
-	return end - start;
-}
-
-#define TIMER_MACRO_TSC(Engine, e, iter, result)\
-	volatile typename Engine::result_type value;\
-												\
-    timer_type timer;							\
-												\
-	uint64_t start = timer();					\
-												\
-	for (CounterType i = 0; i < iter; ++i)		\
-	{											\
-		value = e();							\
-	}											\
-												\
-	uint64_t end = timer();						\
-												\
-	result = end - start
-
 
 // output results
 
@@ -180,76 +119,47 @@ struct timer_object
 	double cpu_freq_;
 };
 
-// specific timers
-
-namespace detail {
-	typedef mpl::string<'r','d','t','s','c'>::type rdtsc_string;
-	typedef mpl::string<'m','a','c','r','o'>::type macro_string;
-	typedef qfcl::tmp::concatenate<rdtsc_string, mpl::string<'_'>::type, macro_string>::type rdtsc_macro_string;
-	typedef mpl::string<'b','o','o','s','t'>::type boost_string;
-}	// namespace detail
-
-struct boost_timer
-{
-	typedef boost::timer::cpu_times result_type;
-
-	template<typename Distribution, typename CounterType>
-	result_type operator()(Distribution & d, Engine &, CounterType iterations) const
-	{
-		Engine e;
-		return time_engine_boost(d, e, iterations); 
-	}
-
-	static string description()
-	{
-		return "boost::timer, engine passed by reference";
-	}
-
-	typedef detail::boost_string name;
-};
-
-struct rdtsc
+// time stamp counter variate generation timer
+struct rdtsc_variate_timer
 {
 	typedef uint64_t result_type;
 
 	template<typename Distribution, typename CounterType>
-	result_type operator()(Distribution &, Engine & e, CounterType iterations) const
+	result_type operator()(Distribution & d_, Engine & e_, CounterType iterations) const
 	{
-		Distribution d;
-		return time_distribution_TSC(d, e, iterations); 
+		// don't want to slow down by using a reference
+		Engine e = e_;
+		Distribution d = d_;
+	
+		volatile typename Engine::result_type value;
+												
+		timer_type timer;								
+												
+		uint64_t start = timer();					
+												
+		for (CounterType i = 0; i < iterations; ++i)		
+		{											
+			value = d(e);							
+		}											
+												
+		uint64_t end = timer();						
+												
+		uint64_t result = end - start;	
+
+		return result;
 	}
 
 	static string description()
 	{
-		return "time stamp counter (non-serialized), engine passed by reference";
+		return "time stamp counter for variate generators (non-serialized)";
 	}
 
-	typedef detail::rdtsc_string name;
+	typedef qfcl::timer::detail::RDTSC_name name;
 };
 
-//struct rdtsc_macro
-//{
-//	typedef uint64_t result_type;
-//
-//	template<typename Distribution, typename CounterType>
-//	result_type operator()(Distribution &, Engine & e, CounterType iterations) const
-//	{
-//		Distribution d;
-//		result_type result;
-//		TIMER_MACRO_TSC(d, e, iterations, result);
-//		return result;
-//	}
-//
-//	static string description()
-//	{
-//		return "time stamp counter (non-serialized) as a macro";
-//	}
-//
-//	typedef detail::rdtsc_macro_string name;
-//};
 
 // list of timers
-typedef mpl::vector<rdtsc, boost_timer> timer_list;
+typedef mpl::vector<rdtsc_variate_timer> timer_list;
 
 // We want to avoid double type-selection for now, so we use the following "kludge".
 template<typename DistributionList, typename CounterType, typename SelectionMethod>
@@ -260,18 +170,13 @@ void perform_speed_test(const vector<string> & engine_params, const string & tim
 	if (timer_name == "rdtsc")
         qfcl::type_selection::for_each_selector<DistributionList, SelectionMethod>(
 			engine_params,
-			timer_object<CounterType, rdtsc>(e, iterations, cpu_freq)
+			timer_object<CounterType, rdtsc_variate_timer>(e, iterations, cpu_freq)
 		);
-	//else if (timer_name == "rdtsc_macro")
+	//else if (timer_name == "boost")
  //       qfcl::type_selection::for_each_selector<DistributionList, SelectionMethod>(
 	//		engine_params, 
-	//		timer_object<CounterType, rdtsc_macro>(e, iterations, cpu_freq)
+	//		timer_object<CounterType, boost_timer>(e, iterations, cpu_freq)
 	//	);
-	else if (timer_name == "boost")
-        qfcl::type_selection::for_each_selector<DistributionList, SelectionMethod>(
-			engine_params, 
-			timer_object<CounterType, boost_timer>(e, iterations, cpu_freq)
-		);
 	else
         throw std::logic_error("bad program");
 }
@@ -326,13 +231,13 @@ int main(int argc, char * argv[])
 		 po::value<string>(&distributions),
 		 "specifies a single or comma separated list of distribution(s) to be tested. " \
 		 "All distributions are tested if neither this option " \
-		 "nor the -f option is not specified.\n" \
+		 "nor the -f option is specified.\n" \
 		 "-d l [ --distributions list ] for a list of all available distributions.")
 		("family,f",
 		 po::value<string>(&family),
 		 "specifies a family of distributions to test.\n" \
 		 "-f l [ --family list ] for a list of all available families.")
-		("timer,t", po::value<string>(&timer_param) -> default_value(stringize(QFCL_TIMER)),
+		("timer,t", po::value<string>(&timer_param) -> default_value(mpl::c_str<QFCL_TIMER::name>::value),
 		 "specifies which timer to use. " \
 		 "Type -t h [ --timer help ] for a list of all timers.");
 

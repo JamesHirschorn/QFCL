@@ -49,7 +49,7 @@ namespace po = boost::program_options;
 #include "engine_common.ipp"
 
 // default timer
-#define QFCL_TIMER rdtsc_timer
+#define QFCL_TIMER rdtsc_engine_timer
 // default number of iterations per engine
 #define	QFCL_ITERATIONS 100000000
 
@@ -58,33 +58,6 @@ namespace po = boost::program_options;
 //#define INCLUDE_UNNAMED
 
 /** timers */
-
-/* timing routines */
-
-// boost timer
-//template<typename Engine, typename CounterType>
-//inline
-//boost::timer::cpu_times time_engine_boost(Engine & e_, CounterType iterations) 
-//{
-//	using namespace boost::timer;
-//
-//	Engine e;
-//
-//	// Important! Prevent excessive optimization
-//	volatile typename Engine::result_type value;
-//
-//	cpu_timer timer;
-//
-//	// Note: For some reason this loop does not register as either user or system usage.
-//	for (; iterations > 0; --iterations)
-//	{
-//		value = e();
-//	}
-//
-//	timer.stop();
-//
-//	return timer.elapsed();
-//}
 
 #ifdef QFCL_RDTSCP
 typedef qfcl::timer::rdtscp_timer timer_type;
@@ -144,11 +117,10 @@ struct engine_timer_object
 // specific timers
 
 namespace detail {
-	typedef mpl::string<'r','d','t','s','c'>::type rdtsc_string;
 	typedef mpl::string<'b','o','o','s','t'>::type boost_string;
 }	// namespace detail
 
-struct boost_timer
+struct boost_engine_timer
 {
 	typedef boost::timer::cpu_times result_type;
 
@@ -175,14 +147,14 @@ struct boost_timer
 
 	static string description()
 	{
-		return "boost::timer, engine passed by reference";
+		return "boost::timer for PRNG engines";
 	}
 
 	typedef detail::boost_string name;
 };
 
-// time stamp counter timer
-struct rdtsc_timer
+// time stamp counter engine timer
+struct rdtsc_engine_timer
 {
 	typedef uint64_t result_type;
 
@@ -211,28 +183,28 @@ struct rdtsc_timer
 
 	static string description()
 	{
-		return "time stamp counter (non-serialized)";
+		return "time stamp counter for PRNG engines (non-serialized)";
 	}
 
-	typedef detail::rdtsc_string name;
+	typedef qfcl::timer::detail::RDTSC_name name;
 };
 
 // list of timers
-typedef mpl::vector<rdtsc_timer, boost_timer> timer_list;
+typedef mpl::vector<rdtsc_engine_timer, boost_engine_timer> timer_list;
 
 // We want to avoid double type-selection for now, so we use the following "kludge".
 template<typename EngineList, typename CounterType, typename SelectionMethod>
 void perform_speed_test(const vector<string> & engine_params, const string & timer_name, CounterType iterations, double cpu_freq)
 {
-	if (timer_name == "rdtsc")
+	if (timer_name == mpl::c_str<rdtsc_engine_timer::name>::value)
         qfcl::type_selection::for_each_selector<EngineList, SelectionMethod>(
 			engine_params,
-			engine_timer_object<CounterType, rdtsc_timer>(iterations, cpu_freq)
+			engine_timer_object<CounterType, rdtsc_engine_timer>(iterations, cpu_freq)
 		);
-	else if (timer_name == "boost")
+	else if (timer_name == mpl::c_str<boost_engine_timer::name>::value)
         qfcl::type_selection::for_each_selector<EngineList, SelectionMethod>(
 			engine_params, 
-			engine_timer_object<CounterType, boost_timer>(iterations, cpu_freq)
+			engine_timer_object<CounterType, boost_engine_timer>(iterations, cpu_freq)
 		);
 	else
         throw std::logic_error("bad program");
@@ -278,8 +250,6 @@ int main(int argc, char * argv[])
 		("version,v", "version info");
 	
 	string timer_param;
-
-	string default_timer_name = mpl::c_str<QFCL_TIMER::name>::value;
 	
 	po::options_description engine_option("Engine and Timer options");
 	engine_option.add_options()
@@ -288,7 +258,7 @@ int main(int argc, char * argv[])
 		 "specifies an engine to test. Use this options multiple times to specify a list of engines. " \
 		 "All engines are tested if this option is not specified. " \
 		 "Type -e h [ --engine help ] for a list of all available engines.")
-		("timer,t", po::value<string>(&timer_param) -> default_value(default_timer_name),
+		("timer,t", po::value<string>(&timer_param) -> default_value(mpl::c_str<QFCL_TIMER::name>::value),
 		 "specifies which timer to use. " \
 		 "Type -t h [ --timer help ] for a list of all timers.");
 
