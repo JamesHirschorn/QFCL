@@ -31,9 +31,9 @@ set( PREPROCESSOR_DEFINITIONS ${PREPROCESSOR_DEFINITIONS} _SCL_SECURE_NO_WARNING
 if( CMAKE_HOST_UNIX )
 	# option( What "who?" ON )
 	#  mark_as_advanced( CLEAR CMAKE_CXX_FLAGS )
-    set( QFCL_CXX_FLAGS "-std=c++0x" CACHE STRING "C++ compiler flags" )
+    set( QFCL_CXX_FLAGS "-standard=c++0x" CACHE STRING "C++ compiler flags" )
     set( CMAKE_CXX_FLAGS ${QFCL_CXX_FLAGS} )
-	#   set( CMAKE_CXX_FLAGS "-std=c++0x" CACHE STRING "C++ compiler flags" )
+	#   set( CMAKE_CXX_FLAGS "-standard=c++0x" CACHE STRING "C++ compiler flags" )
 endif( CMAKE_HOST_UNIX )
 
 # ------------------------------------------------------------------------

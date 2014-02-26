@@ -23,11 +23,12 @@
 
 #include <ql/math/randomnumbers/mt19937uniformrng.hpp>
 
+#include <qfcl/miscellaneous/strings.hpp>
+#include <qfcl/random/engine/qfcl_engine_adapter.hpp>
 #include <qfcl/utility/tmp.hpp>
 #include <qfcl/utility/named_adapter.hpp>
 
 #include "mersenne_twister.hpp"
-#include "standards_adapter.hpp"
 
 namespace qfcl {
 
@@ -38,17 +39,10 @@ namespace random {
 //! \cond
 namespace detail {
 
-//! alias
-namespace mpl = boost::mpl;
-
-typedef mpl::string<'Q', 'u', 'a', 'n', 't'>::type _Quant_string;
-typedef mpl::string<'L', 'i', 'b'>::type _Lib_string;
-typedef qfcl::tmp::concatenate<_Quant_string, _Lib_string, mpl::string<'-'>::type>::type _QuantLib_prefix;
-
-typedef qfcl::tmp::concatenate<_QuantLib_prefix, mt19937_name>::type QuantLib_mt19937_name;
+typedef qfcl::tmp::concatenate<QuantLib_string, mt19937_name>::type QuantLib_mt19937_name;
 
 typedef named_adapter<
-	standards_adapter<
+	qfcl_engine_adapter<
 			QuantLib::MersenneTwisterUniformRng
 		,	unsigned long
 		,	unsigned long[624]
@@ -77,6 +71,6 @@ public:
 
 }	// namespace qfcl
 
-#endif QFCL_RANDOM_QUANTLIB_MT19937_HPP
+#endif !QFCL_RANDOM_QUANTLIB_MT19937_HPP
 
 #endif USE_QUANTLIB

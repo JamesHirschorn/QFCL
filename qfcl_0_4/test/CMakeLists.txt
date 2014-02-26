@@ -119,17 +119,26 @@ source_group( "Source Files" FILES ${source_files} )
 set_target_properties( EngineSpeedHardCoded PROPERTIES
 					   FOLDER test/QFCLPerformanceTests
 					   COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINITIONS}"
-					   OUTPUT_NAME engine_speed )
+					   OUTPUT_NAME engine_speed_hard_coded )
 target_link_libraries( EngineSpeedHardCoded QFCL NTL ${Boost_LIBRARIES} ${QuantLib_LIBRARIES} ) 
 
-set( source_files normal_univariate_speed.cpp engine_common.ipp utility/cpu_timer.hpp )
-add_executable( NormalUnivariateSpeed ${source_files} )
+set( source_files univariate_generation_speed.cpp distribution_common.ipp utility/cpu_timer.hpp )
+add_executable( UnivariateGenerationSpeed ${source_files} )
 source_group( "Source Files" FILES ${source_files} )
-set_target_properties( NormalUnivariateSpeed PROPERTIES
+set_target_properties( UnivariateGenerationSpeed PROPERTIES
 					   FOLDER test/QFCLPerformanceTests
 					   COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINITIONS}"
-					   OUTPUT_NAME normal_univariate_speed )
-target_link_libraries( NormalUnivariateSpeed QFCL NTL ${Boost_LIBRARIES} ${QuantLib_LIBRARIES} ) 
+					   OUTPUT_NAME univariate_generation_speed )
+target_link_libraries( UnivariateGenerationSpeed QFCL NTL ${Boost_LIBRARIES} ${QuantLib_LIBRARIES} ) 
+
+set( source_files univariate_generation_speed_hard_coded.cpp distribution_common.ipp utility/cpu_timer.hpp )
+add_executable( UnivariateGenerationSpeedHardCoded ${source_files} )
+source_group( "Source Files" FILES ${source_files} )
+set_target_properties( UnivariateGenerationSpeedHardCoded PROPERTIES
+					   FOLDER test/QFCLPerformanceTests
+					   COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINITIONS}"
+					   OUTPUT_NAME univariate_generation_speed_hard_coded )
+target_link_libraries( UnivariateGenerationSpeedHardCoded QFCL NTL ${Boost_LIBRARIES} ${QuantLib_LIBRARIES} ) 
 
 set( source_files engine_profiler.cpp engine_common.ipp utility/cpu_timer.hpp )
 add_executable( EngineProfiler ${source_files} )

@@ -167,8 +167,8 @@ public:
 		preceding the current state. This uniquely determines the current state.
 	*/
 	template<typename charT, typename Traits>
-	friend std::basic_ostream<charT, Traits> & 
-	operator<<(std::basic_ostream<charT, Traits> & os, 
+	friend ::std::basic_ostream<charT, Traits> & 
+	operator<<(::std::basic_ostream<charT, Traits> & os, 
 			   const linear_generator & eng)
 	{
 		state s(eng.x, eng.i);
@@ -181,8 +181,8 @@ public:
 		from the stream.
 	*/
 	template<typename charT, typename Traits>
-	friend std::basic_istream<charT, Traits> & 
-	operator>>(std::basic_istream<charT, Traits> & is,
+	friend ::std::basic_istream<charT, Traits> & 
+	operator>>(::std::basic_istream<charT, Traits> & is,
 			   Derived & eng)
 	{
 		UIntType y[n];
@@ -203,7 +203,7 @@ private:
 	//! the RNG state stored as a circular buffer
 	UIntType x[n];
 	//! index within the state of the next random number to be generated
-	std::size_t i;
+	::std::size_t i;
 
 	//! the jump matrix
 	static matrix_t J;
@@ -244,12 +244,12 @@ private:
 	static bool JumpMatrix_file_exists_imp(unsigned long long jump_size, bool reverse = false);
 
 	//! the name of the file containing the transition matrix
-	static std::string transition_matrix_filename(bool reverse = false);
+	static ::std::string transition_matrix_filename(bool reverse = false);
 	//! the name of the file containing the jump matrix
-	static std::string jump_matrix_filename(unsigned long long jump_size, bool reverse = false);
+	static ::std::string jump_matrix_filename(unsigned long long jump_size, bool reverse = false);
 	//! handles \c linear_generator matrix reads, computing and storing on disk when needed
 	template<typename F>
-    static matrix_t obtain_matrix(const std::string & filename, const F & f);
+    static matrix_t obtain_matrix(const ::std::string & filename, const F & f);
 
 	struct transition_matrix_functor;
 	struct jump_matrix_functor;

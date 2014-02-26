@@ -46,8 +46,6 @@ int main(int argc, char * argv[])
 	// For debugging purposes only
 	size_t dump_size = 0; //10;
 
-	typedef mpl::vector<boost::random::mt19937, boost_mt19937, mt19937> Engines; 
-
 #ifndef	SYSTEM_CPU_FREQUENCY
 	double cpu_frequency = qfcl::timer::get_cpu_frequency();
 #else
@@ -59,8 +57,6 @@ int main(int argc, char * argv[])
 	cout << qfcl::io::custom_formatted(iterations) << " iterations per engine:" << endl << endl;
 
 	//cout << "engine name: " << qfcl::tmp::name_or_typename<boost::random::mt19937>::name() << endl;
-
-	//mpl::for_each<Engines>(timer_functor<CounterType>(iterations, cpu_frequency, dump_size));
 
 	/*timer_functor<CounterType> timer(iterations, cpu_frequency);
 	boost_mt19937 eng1;

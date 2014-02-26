@@ -402,7 +402,7 @@ private:
 			must be allocated.
 		\param p the number of preceding numbers to obtain.
 	*/
-	static void rewind_imp(const UIntType (&x)[n], UIntType * end, std::size_t p)
+	static void rewind_imp(const UIntType (&x)[n], UIntType * end, ::std::size_t p)
 	{
 		UIntType y1 = rewind_invert(x, end, -1);
 
@@ -733,7 +733,7 @@ template<typename EngineTraits>
 inline void
 mersenne_twister_engine<EngineTraits>::Previous_n(UIntType (&x)[n])
 {
-	using std::size_t;
+	using ::std::size_t;
 
 	ssize_t sm = shift_size, sn = n;
 

@@ -6,63 +6,46 @@
 #include <boost/mpl/vector.hpp>
 namespace mpl = boost::mpl;
 
-#include <qfcl/random/engine/counting.hpp>
-#include <qfcl/random/engine/mersenne_twister.hpp>
-#include <qfcl/random/engine/boost_mt19937.hpp>
-#ifdef USE_QUANTLIB
-#include <qfcl/random/engine/quantlib_mt19937.hpp>
-#endif USE_QUANTLIB
-#ifdef USE_CPP11
-#include <qfcl/random/engine/std_mt19937.hpp>
-#endif USE_CPP11
-#include <qfcl/random/engine/twisted_generalized_feedback_shift_register.hpp>
+#include <qfcl/random/distribution/boost_normal_distribution.hpp>
+#include <qfcl/random/distribution/boost_uniform_01.hpp>
+#include <qfcl/random/distribution/normal_boost_quantile.hpp>
+#include <qfcl/random/distribution/normal_box_muller.hpp>
 #include <qfcl/utility/tmp.hpp>
 
-// list of normal univariate distributions
-typedef mpl::vector< boost::random::normal_distribution<> >
-normal_distributions;
-
-typedef mpl::vector< boost::random::normal_distribution<> >
-all_distributions;
-
-typedef mpl::vector< mpl::pair<qfcl::random::mt11213a,		qfcl::random::reverse_mt11213a>,
-					 mpl::pair<qfcl::random::mt11213b,		qfcl::random::reverse_mt11213b>,
-					 mpl::pair<qfcl::random::mt19937,		qfcl::random::reverse_mt19937>,
-				     mpl::pair<qfcl::random::mt19937_64,	qfcl::random::reverse_mt19937_64>,
-					 mpl::pair<qfcl::random::tt800,			qfcl::random::reverse_tt800>,
-					 mpl::pair<qfcl::random::micro_mt,		qfcl::random::reverse_micro_mt>
-				   >
-linear_generator_reversible_engine_pairs;
-//! \cond
-// a flat list of all engines, computed from \c linear_generator_engine_pairs
-typedef qfcl::tmp::vector_of_flattened_pairs<linear_generator_reversible_engine_pairs>::type
-	reversible_linear_generator_engines;
-typedef mpl::push_back<reversible_linear_generator_engines, qfcl::random::boost_mt19937>::type linear_generator_engines; 
-//! \endcond
-
-//! List of all engines
-typedef mpl::vector< qfcl::random::mt19937,
-					 qfcl::random::boost_mt19937,
 #ifdef USE_QUANTLIB
-					 qfcl::random::QuantLib_mt19937,
+//#include <qfcl/random/engine/quantlib_mt19937.hpp>
+#include <qfcl/random/distribution/normal_QuantLib_box_muller.hpp>
 #endif USE_QUANTLIB
 #ifdef USE_CPP11
-					 qfcl::random::std_mt19937,
+//#include <qfcl/random/engine/std_mt19937.hpp>
 #endif USE_CPP11
-					 qfcl::random::reverse_mt19937,
-					 qfcl::random::mt19937_64,	
-					 qfcl::random::reverse_mt19937_64,
-					 qfcl::random::counting_uint,
-					 qfcl::random::Numberline,
-					 qfcl::random::mt11213a,	
-					 qfcl::random::reverse_mt11213a,
-					 qfcl::random::mt11213b,	
-					 qfcl::random::reverse_mt11213b,
-					 qfcl::random::tt800,		
-					 qfcl::random::reverse_tt800,
-					 qfcl::random::micro_mt,	
-					 qfcl::random::reverse_micro_mt
-				   > all_engines;
+#include <qfcl/utility/tmp.hpp>
+
+//! list of continuous uniform distributions
+typedef mpl::vector<
+		qfcl::random::boost_uniform_01<> >
+continuous_uniform_distributions;
+
+//! list of normal univariate distributions
+typedef mpl::vector< 
+		qfcl::random::boost_normal_distribution<>
+	,	qfcl::random::normal_boost_quantile<>
+	,	qfcl::random::normal_box_muller<> 
+#ifdef USE_QUANTLIB
+	,	qfcl::random::normal_QuantLib_box_muller<>
+#endif USE_QUANTLIB
+	>
+normal_distributions;
+
+//! list of all families of distributions
+typedef mpl::vector<normal_distributions > distribution_families;
+
+//! List of all distributions
+typedef qfcl::tmp::concatenate<
+		continuous_uniform_distributions
+	,	normal_distributions
+	>::type
+all_distributions;
 
 /// NOTE: Put somewhere else?
 //! print the \c Engine name concatenated with \c str
