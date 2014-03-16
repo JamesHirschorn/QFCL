@@ -35,6 +35,11 @@ struct normal_box_muller
 { 
 	typedef RealType result_type; 
 
+    //! constructor
+    normal_box_muller() : _valid(false)
+    {
+    }
+
 	template<typename Engine>
 	result_type operator()(Engine & e)
 	{
