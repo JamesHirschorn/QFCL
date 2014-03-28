@@ -25,7 +25,8 @@ namespace random {
 
 enum variate_method_enum {
 	QUANTILE,
-	BOX_MULLER
+	BOX_MULLER_BASIC,
+	BOX_MULLER_POLAR
 };
 
 struct variate_method
@@ -40,8 +41,10 @@ struct variate_method
 		{
 		case QUANTILE:
 			return "Quantile";
-		case BOX_MULLER:
-			return "Box-Muller";
+		case BOX_MULLER_BASIC:
+			return "Box-Muller (basic)";
+		case BOX_MULLER_POLAR:
+			return "Box-Muller (polar)";
 		default:
 			throw ::std::logic_error("bad program");
 		}

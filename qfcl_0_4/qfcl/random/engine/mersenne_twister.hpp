@@ -23,7 +23,6 @@
 #include <algorithm>
 #include <iostream>
 #include <iterator>
-//#include <stdexcept>
 #include <vector>
 
 #include <boost/cstdint.hpp>

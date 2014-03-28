@@ -18,19 +18,18 @@
 	\date February 11, 2014
 */
 
+#include <qfcl/random/distribution/distributions.hpp>
 #include <qfcl/random/distribution/qfcl_distribution_adaptor.hpp>
 #include <qfcl/random/distribution/uniform_0in_1in.hpp>
 //#include <qfcl/random/variate_generator.hpp>
 #include <cmath>
-
-#include "distributions.hpp"
 
 namespace qfcl {
 namespace random {
 //! Version conforming to C++ standards
 namespace standard {
 
-template<class RealType = double>
+template<typename RealType = double>
 struct normal_box_muller 
 { 
 	typedef RealType result_type; 
@@ -70,7 +69,7 @@ private:
 
 //struct test_class
 //{};
-template<class RealType = double>
+template<typename RealType = double>
 class normal_box_muller 
 	: public qfcl_distribution_adaptor<standard::normal_box_muller<RealType>>
 {
@@ -88,7 +87,7 @@ template<typename RealType>
 //const variate_method qfcl_distribution_adaptor<RealType, double>::method = BOX_MULLER;
 //const variate_method qfcl_distribution_adaptor<standard::normal_box_muller<RealType>, standard::normal_box_muller<RealType>::result_type>::method = BOX_MULLER;
 //const variate_method normal_box_muller<RealType>::base_type::method = BOX_MULLER;
-const variate_method normal_box_muller<RealType>::method = BOX_MULLER;
+const variate_method normal_box_muller<RealType>::method = BOX_MULLER_BASIC;
 
 }}	// namespace qfcl::random
 #endif	!QFCL_RANDOM_DISTRIBUTION_NORMAL_BOX_MULLER_HPP

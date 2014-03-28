@@ -55,13 +55,13 @@ std::ostream & operator<<( std::ostream & os,
 	long long i = ll.value;
 
 	// convert to string
-	string str = boost::lexical_cast<string>(i); 
+	std::string str = boost::lexical_cast<std::string>(i); 
 
 	// comma separated string
-	string cs_str;
+	std::string cs_str;
 	int counter = 0;
 
-	for (string::reverse_iterator i = str.rbegin(); i != str.rend(); 
+	for (std::string::reverse_iterator i = str.rbegin(); i != str.rend(); 
 		 ++i, ++counter)
 	{
 		// don't put comma immediately after - sign

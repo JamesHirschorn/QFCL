@@ -24,11 +24,10 @@
 #include <ql/math/randomnumbers/mt19937uniformrng.hpp>
 
 #include <qfcl/miscellaneous/strings.hpp>
+#include <qfcl/random/engine/mersenne_twister.hpp>
 #include <qfcl/random/engine/qfcl_engine_adapter.hpp>
 #include <qfcl/utility/tmp.hpp>
 #include <qfcl/utility/named_adapter.hpp>
-
-#include "mersenne_twister.hpp"
 
 namespace qfcl {
 
@@ -39,7 +38,7 @@ namespace random {
 //! \cond
 namespace detail {
 
-typedef qfcl::tmp::concatenate<QuantLib_string, mt19937_name>::type QuantLib_mt19937_name;
+typedef qfcl::tmp::concatenate<qfcl::string::QuantLib_prefix, mt19937_name>::type QuantLib_mt19937_name;
 
 typedef named_adapter<
 	qfcl_engine_adapter<
@@ -54,7 +53,7 @@ typedef named_adapter<
 	@{
 */
 
-// named QFCL versions of QuantLib engines
+namespace standard {
 
 class QuantLib_mt19937 : public detail::ql_mt19937
 {
@@ -64,6 +63,12 @@ public:
 		return e.nextInt32();
 	}
 };
+
+}	// namespace standard
+
+// named QFCL versions of QuantLib engines
+
+typedef named_adapter<standard::QuantLib_mt19937, detail::QuantLib_mt19937_name> QuantLib_mt19937; 
 
 //! @}
 

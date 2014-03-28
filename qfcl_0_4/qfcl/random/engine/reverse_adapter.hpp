@@ -23,19 +23,12 @@
 
 #include <boost/mpl/string.hpp>
 
+#include <qfcl/miscellaneous/strings.hpp>
+
 namespace qfcl {
 
 namespace random {
 	
-/* reverse engine name */
-
-//! \cond
-namespace {
-
-typedef boost::mpl::string<'R', 'e', 'v', 'e', 'r', 's', 'e', '-'>::type _reverse_prefix;
-}	// anonymous namespace
-//! \endcond
-
 /*! \ingroup random
 	@{
 */
@@ -131,7 +124,7 @@ public:
 		return is >> ra.e;
 	}
 
-	typedef typename qfcl::tmp::concatenate<_reverse_prefix, typename Engine::name>::type name;
+	typedef typename qfcl::tmp::concatenate<string::Reverse_prefix, typename Engine::name>::type name;
 //	typedef typename Engine::parameter parameter;
 private:
 	Engine e;

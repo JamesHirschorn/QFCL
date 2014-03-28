@@ -38,6 +38,8 @@ namespace mpl = boost::mpl;
 #include <qfcl/utility/type_selection.hpp>
 
 #include <qfcl/random/distribution/normal_box_muller.hpp>
+#include <qfcl/random/distribution/normal_box_muller_polar.hpp>
+#include <qfcl/random/distribution/normal_QuantLib_box_muller_polar.hpp>
 
 #include "utility/cpu_timer.hpp"
 
@@ -73,9 +75,12 @@ int main(int argc, char * argv[])
 	typedef unsigned long long CounterType;
 	//typedef unsigned long CounterType;
 
-	CounterType iterations;
+	CounterType iterations = 1;
+
+	bool show_values = true;
 
 	typedef mt19937 Engine;
+	//typedef boost::random::mt19937 Engine;
 		
 #ifndef	SYSTEM_CPU_FREQUENCY
     double cpu_frequency = qfcl::timer::get_cpu_frequency();
@@ -86,8 +91,6 @@ int main(int argc, char * argv[])
     cout << boost::format("CPU frequency: %|1$.5| GHz\n\n") % (cpu_frequency / qfcl::timer::one_second);
 
 	cout << qfcl::io::custom_formatted(iterations) << " iterations per engine:" << endl << endl;
-
-	//exit(EXIT_SUCCESS);
 
 	// normal_box_muller
 	{
@@ -103,7 +106,11 @@ int main(int argc, char * argv[])
 												
 		for (CounterType i = 0; i < iterations; ++i)		
 		{											
-			value = d(e);							
+			value = d(e);		
+			if (show_values)
+			{
+				cout << boost::format("Random number %|1$3|: %|2$20.10|.\n") % i % value; 
+			}
 		}											
 												
 		uint64_t end = timer();						
@@ -115,6 +122,67 @@ int main(int argc, char * argv[])
 			qfcl::names::name_or_typename(d), qfcl::names::name_or_typename(Distribution::method), 
 			cpu_frequency);
 	}
+	// normal_box_muller_polar
+	{
+		typedef normal_box_muller_polar<> Distribution;
+		Engine e;
+		Distribution d;
+	
+		volatile Distribution::result_type value;
+												
+		timer_t timer;								
+												
+		uint64_t start = timer();					
+												
+		for (CounterType i = 0; i < iterations; ++i)		
+		{											
+			value = d(e);		
+			if (show_values)
+			{
+				cout << boost::format("Random number %|1$3|: %|2$20.10|.\n") % i % value; 
+			}
+		}											
+												
+		uint64_t end = timer();						
+												
+		uint64_t result = end - start;	
+
+		show_timing_results(
+			result, iterations, 
+			qfcl::names::name_or_typename(d), qfcl::names::name_or_typename(Distribution::method), 
+			cpu_frequency);
+	}	
+	// normal_QuantLib_box_muller
+	{
+		typedef  normal_QuantLib_box_muller_polar<> Distribution;
+		Engine e;
+		Distribution d;
+	
+		volatile Distribution::result_type value;
+												
+		timer_t timer;								
+												
+		uint64_t start = timer();					
+												
+		for (CounterType i = 0; i < iterations; ++i)		
+		{											
+			value = d(e);							
+			if (show_values)
+			{
+				cout << boost::format("Random number %|1$3|: %|2$20.10|.\n") % i % value; 
+			}
+		}											
+												
+		uint64_t end = timer();						
+												
+		uint64_t result = end - start;	
+
+		show_timing_results(
+			result, iterations, 
+			qfcl::names::name_or_typename(d), qfcl::names::name_or_typename(Distribution::method), 
+			cpu_frequency);
+	}
+
 	cout << "Press Enter to exit.";
 
 	char c;

@@ -22,11 +22,10 @@
 #include <boost/mpl/string.hpp>
 #include <boost/random/mersenne_twister.hpp>
 
+#include <qfcl/miscellaneous/strings.hpp>
+#include <qfcl/random/engine/mersenne_twister.hpp>
 #include <qfcl/utility/tmp.hpp>
 #include <qfcl/utility/named_adapter.hpp>
-
-#include "boost_engines.hpp"
-#include "mersenne_twister.hpp"
 
 namespace qfcl {
 
@@ -40,7 +39,7 @@ namespace detail {
 //! alias
 namespace mpl = boost::mpl;
 
-typedef qfcl::tmp::concatenate<_boost_prefix, mt19937_name>::type boost_mt19937_name;
+typedef qfcl::tmp::concatenate<qfcl::string::boost_prefix, mt19937_name>::type boost_mt19937_name;
 }	// namespace detail
 //! \endcond
 
