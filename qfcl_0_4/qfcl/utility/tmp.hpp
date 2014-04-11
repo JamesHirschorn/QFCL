@@ -141,6 +141,7 @@ struct concatenate<T1, T2, T3, reserved, reserved>
 };
 template<typename T1, typename T2, typename T3, typename T4>
 struct concatenate<T1, T2, T3, T4, reserved>
+	: concatenate4<T1, T2, T3, T4>
 {
 };
 //template<typename T1, typename T2, typename T3, typename T4, typename T5>
