@@ -97,12 +97,12 @@ struct concatenate3
 };
 template<typename T1, typename T2, typename T3, typename T4>
 struct concatenate4
-	: concatenate2< typename concatenate3<T1, T2, T3>::type, T4 >
+	: concatenate3< typename concatenate3<T1, T2, T3>::type, T4 >
 {
 };
 template<typename T1, typename T2, typename T3, typename T4, typename T5>
 struct concatenate5
-	: concatenate2< typename concatenate4<T1, T2, T3, T4>::type, T5 >
+	: concatenate4< typename concatenate4<T1, T2, T3, T4>::type, T5 >
 {
 };
 //! \endcond
