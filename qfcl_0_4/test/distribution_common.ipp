@@ -8,13 +8,14 @@ namespace mpl = boost::mpl;
 
 #include <qfcl/random/distribution/boost_normal_distribution.hpp>
 #include <qfcl/random/distribution/boost_uniform_01.hpp>
-#include <qfcl/random/distribution/normal_boost_quantile.hpp>
+#include <qfcl/random/distribution/boost_normal_quantile.hpp>
 #include <qfcl/random/distribution/normal_box_muller.hpp>
+#include <qfcl/random/distribution/uniform_0in_1in.hpp>
 #include <qfcl/utility/tmp.hpp>
 
 #ifdef USE_QUANTLIB
 //#include <qfcl/random/engine/quantlib_mt19937.hpp>
-#include <qfcl/random/distribution/normal_QuantLib_box_muller.hpp>
+#include <qfcl/random/distribution/QuantLib_normal_box_muller_polar.hpp>
 #endif USE_QUANTLIB
 #ifdef USE_CPP11
 //#include <qfcl/random/engine/std_mt19937.hpp>
@@ -23,16 +24,17 @@ namespace mpl = boost::mpl;
 
 //! list of continuous uniform distributions
 typedef mpl::vector<
-		qfcl::random::boost_uniform_01<> >
+		qfcl::random::boost_uniform_01<>
+	,	qfcl::random::uniform_0in_1in<> >
 continuous_uniform_distributions;
 
 //! list of normal univariate distributions
 typedef mpl::vector< 
 		qfcl::random::boost_normal_distribution<>
-	,	qfcl::random::normal_boost_quantile<>
+	,	qfcl::random::boost_normal_quantile<>
 	,	qfcl::random::normal_box_muller<> 
 #ifdef USE_QUANTLIB
-	,	qfcl::random::normal_QuantLib_box_muller<>
+	,	qfcl::random::QuantLib_normal_box_muller_polar<>
 #endif USE_QUANTLIB
 	>
 normal_distributions;

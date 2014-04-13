@@ -73,6 +73,7 @@ template<typename Distribution>
 class QuantLib_variate_generator_adaptor<Distribution, 0>
 	: public detail::QuantLib_variate_generator_adaptor_base<Distribution>
 {
+	typedef detail::QuantLib_variate_generator_adaptor_base<Distribution> base_type;
 public:
 	//! <param>e</param> will be used for further calls to <c>_variate_generator</c>.
 	template<typename Engine>
@@ -81,7 +82,7 @@ public:
 		_variate_generator = std::bind(_dist, std::ref(e));
 	}
 
-	typename sample_type next() const
+	sample_type next() const
 	{
 		return sample_type(_variate_generator(), 1.0);
 	}

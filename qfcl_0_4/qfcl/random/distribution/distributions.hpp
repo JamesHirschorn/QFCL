@@ -20,6 +20,11 @@
 #include <stdexcept>
 #include <string>
 
+#include <boost/mpl/string.hpp>
+
+#include <qfcl/miscellaneous/strings.hpp>
+#include <qfcl/utility/tmp.hpp>
+
 namespace qfcl {
 namespace random {
 
@@ -53,6 +58,20 @@ private:
 	variate_method_enum _method;
 };
 
-}}	// namespace qfcl::random::normal
+}	// namespace random
+
+namespace string {
+
+typedef tmp::concatenate<prefix<normal_string, '_'>::type, string::quantile_string>::type normal_quantile_name;
+typedef boost::mpl::string<'B', 'o', 'x'>::type Box_string;
+typedef boost::mpl::string<'M', 'u', 'l', 'l', 'e', 'r'>::type Muller_string;
+typedef qfcl::tmp::concatenate<prefix<normal_string, '_'>::type, prefix<Box_string>::type, Muller_string>::type 
+	normal_box_muller_name;
+typedef qfcl::tmp::concatenate<string::prefix<normal_box_muller_name, '_'>::type, qfcl::string::polar_string>::type
+	normal_box_muller_polar_name;
+
+}	// namespace string
+
+}	// namespace qfcl
 
 #endif !QFCL_RANDOM_DISTRIBUTION_DISTRIBUTIONS_HPP

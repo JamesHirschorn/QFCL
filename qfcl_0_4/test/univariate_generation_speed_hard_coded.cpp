@@ -75,7 +75,7 @@ int main(int argc, char * argv[])
 	typedef unsigned long long CounterType;
 	//typedef unsigned long CounterType;
 
-	CounterType iterations = 1;
+	CounterType iterations = 10;
 
 	bool show_values = true;
 

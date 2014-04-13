@@ -21,6 +21,8 @@
 #include <vector>
 
 //#include <qfcl/utility/for_each.hpp>
+#include <qfcl/miscellaneous/strings.hpp>
+#include <qfcl/utility/tmp.hpp>
 #include <qfcl/utility/type_traits.hpp>
 
 namespace qfcl {
@@ -36,18 +38,6 @@ struct name_tag : T::name
 
 	Uses the \c Name field for types modelling the \c Named Concept, and the typename otherwise.
 */
-//template<typename T, typename Enable = void>
-//struct name_or_typename
-//{
-//	static const char * name() {return typeid(T).name();}
-//};
-//
-//template<typename T>
-//struct name_or_typename<T, typename boost::enable_if<traits::is_named<T>>::type>
-//{
-//	//static const char * const value = mpl::c_str<name<T>>::value; 
-//	static const char * name() {return mpl::c_str<names::name<T>::type>::value;}
-//};
 template<typename T>
 const char * name(T & t)
 {
@@ -66,6 +56,19 @@ const char * name_or_typename(T & t, typename boost::enable_if<traits::is_named<
 	//return mpl::c_str<name<T>::type>::value;
 	return name(t);
 }
+
+/*! \brief gives an mpl::string for the template type name.
+	\note \param T must satisfy the Named Model, or else the definition must be specialized.
+*/
+template<typename T>
+struct template_typename
+	: string::brackets<typename name_tag<T>::type, '<', '>'>
+{};
+
+template<>
+struct template_typename<double> 
+	: string::brackets<string::double_string, '<', '>'>
+{};
 
 typedef std::vector<std::string> vector_of_strings;
 

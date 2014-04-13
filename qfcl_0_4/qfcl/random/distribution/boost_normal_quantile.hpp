@@ -7,10 +7,10 @@
  * (See accompanying file LICENSE.txt)
  */
 
-#ifndef QFCL_RANDOM_DISTRIBUTION_NORMAL_BOOST_QUANTILE_HPP
-#define QFCL_RANDOM_DISTRIBUTION_NORMAL_BOOST_QUANTILE_HPP
+#ifndef QFCL_RANDOM_DISTRIBUTION_BOOST_NORMAL_QUANTILE_HPP
+#define QFCL_RANDOM_DISTRIBUTION_BOOST_NORMAL_QUANTILE_HPP
 
-/*! \file qfcl/random/distribution/normal_boost_quantile.hpp
+/*! \file qfcl/random/distribution/boost_normal_quantile.hpp
 	\brief Univariate normal PRNG, using boost's quantile function.
 
 	\author James Hirschorn
@@ -19,10 +19,13 @@
 
 #include <boost/math/distributions/normal.hpp>
 
+#include <qfcl/miscellaneous/strings.hpp>
 #include <qfcl/random/distribution/distributions.hpp>
 #include <qfcl/random/distribution/normal_quantile.hpp>
 #include <qfcl/random/distribution/qfcl_distribution_adaptor.hpp>
 #include <qfcl/random/distribution/uniform_0in_1in.hpp>
+#include <qfcl/utility/tmp.hpp>
+#include <qfcl/utility/named_adapter.hpp>
 
 namespace qfcl {
 namespace random {
@@ -51,16 +54,25 @@ private:
 namespace standard {
 
 template<typename RealType = double, typename U01_Dist = uniform_0in_1in<RealType>>
-class normal_boost_quantile 
-	: public normal_quantile<detail::boost_quantile<RealType>, RealType, U01_Dist>
+class boost_normal_quantile 
+	: public normal_quantile<qfcl::random::detail::boost_quantile<RealType>, RealType, U01_Dist>
 { 
 };
 
 }	// namespace standard
 
 template<typename RealType = double, typename U01_Dist = uniform_0in_1in<RealType>>
-class normal_boost_quantile 
-	: public qfcl_distribution_adaptor<standard::normal_boost_quantile<RealType, U01_Dist>>
+class boost_normal_quantile 
+	: public named_adapter<
+				  qfcl_distribution_adaptor<standard::boost_normal_quantile<RealType, U01_Dist>>
+				, typename
+				  tmp::concatenate<
+					  string::boost_prefix
+					, string::normal_quantile_name
+					, typename names::template_typename<RealType>::type
+					, typename names::template_typename<U01_Dist>::type
+					>::type
+				>
 {
 public:
 	// needed because of bug in MSVC compiler, or because of complex rule?
@@ -68,7 +80,7 @@ public:
 };
 
 template<typename RealType, typename U01_Dist>
-const variate_method normal_boost_quantile<RealType, U01_Dist>::method = QUANTILE;
+const variate_method boost_normal_quantile<RealType, U01_Dist>::method = QUANTILE;
 
 }}	// namespace qfcl::random
-#endif	!QFCL_RANDOM_DISTRIBUTION_NORMAL_BOOST_QUANTILE_HPP
+#endif	!QFCL_RANDOM_DISTRIBUTION_BOOST_NORMAL_QUANTILE_HPP

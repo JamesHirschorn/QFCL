@@ -18,9 +18,13 @@
 	\date February 13, 2014
 */
 
+#include <qfcl/miscellaneous/strings.hpp>
 #include <qfcl/random/variate_generator.hpp>
 #include <qfcl/random/distribution/qfcl_distribution_adaptor.hpp>
 #include <qfcl/random/distribution/distributions.hpp>
+#include <qfcl/utility/tmp.hpp>
+#include <qfcl/utility/named_adapter.hpp>
+#include <qfcl/utility/names.hpp>
 
 namespace qfcl {
 namespace random {
@@ -44,7 +48,14 @@ private:
 
 template<typename RealType = double>
 class uniform_0in_1in
-	: public qfcl_distribution_adaptor<qfcl::random::standard::uniform_0in_1in<RealType>>
+	: public named_adapter<
+		  qfcl_distribution_adaptor<qfcl::random::standard::uniform_0in_1in<RealType>>
+		, tmp::concatenate<
+			  string::prefix<string::uniform_string, '_'>::type
+			, string::prefix<tmp::concatenate<string::number<0>::type, string::in_string>::type, '_'>::type
+			, string::number<1>::type
+			, string::in_string
+			, typename qfcl::names::template_typename<RealType>::type>>
 {
 public:
 	uniform_0in_1in() {}
@@ -52,8 +63,8 @@ public:
 	static const variate_method method; 
 };
 
-//template<typename RealType>
-//const variate_method uniform_0in_1in<RealType>::method = QUANTILE;
+template<typename RealType>
+const variate_method uniform_0in_1in<RealType>::method = QUANTILE;
 
 // improved efficiently
 template<class Engine, class RealType >

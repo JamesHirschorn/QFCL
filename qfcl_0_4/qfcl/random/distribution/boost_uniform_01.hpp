@@ -19,10 +19,11 @@
 	\author James Hirschorn
 	\date February 12, 2014
 */
-
+#include <boost/mpl/joint_view.hpp>
 #include <boost/mpl/string.hpp>
 #include <boost/random/uniform_01.hpp>
 
+#include <qfcl/miscellaneous/strings.hpp>
 #include <qfcl/random/distribution/distributions.hpp>
 #include <qfcl/random/distribution/qfcl_distribution_adaptor.hpp>
 #include <qfcl/utility/tmp.hpp>
@@ -33,7 +34,17 @@ namespace random {
 
 template<typename RealType = double>
 struct boost_uniform_01 
-	: qfcl_distribution_adaptor<boost::uniform_01<RealType>> 
+	: named_adapter<
+		  qfcl_distribution_adaptor<boost::uniform_01<RealType>>	
+		, typename
+		  tmp::concatenate<
+			  string::boost_prefix 
+			, string::prefix<string::uniform_string, '_'>::type
+			, string::number<0>::type
+			, string::number<1>::type
+			, typename names::template_typename<RealType>::type
+			>::type
+		>
 {
 	// shouldn't need this, but MSVC compiler seems to be broken
 	static const variate_method method;

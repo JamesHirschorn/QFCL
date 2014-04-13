@@ -1,4 +1,4 @@
-/* qfcl/random/distribution/normal_QuantLib_box_muller_polar.hpp
+/* qfcl/random/distribution/QuantLib_normal_box_muller_polar.hpp
  *
  * Copyright (C) 2014 James Hirschorn <James.Hirschorn@gmail.com>
  *
@@ -9,10 +9,10 @@
 
 #ifdef USE_QUANTLIB
 
-#ifndef QFCL_RANDOM_DISTRIBUTION_NORMAL_QUANTLIB_BOX_MULLER_POLAR_HPP
-#define QFCL_RANDOM_DISTRIBUTION_NORMAL_QUANTLIB_BOX_MULLER_POLAR_HPP
+#ifndef QFCL_RANDOM_DISTRIBUTION_QUANTLIB_NORMAL_BOX_MULLER_POLAR_HPP
+#define QFCL_RANDOM_DISTRIBUTION_QUANTLIB_NORMAL_BOX_MULLER_POLAR_HPP
 
-/*! \file qfcl/random/distribution/normal_QuantLib_box_muller_polar.hpp
+/*! \file qfcl/random/distribution/QuantLib_normal_box_muller_polar.hpp
 	\brief Univariate normal PRNG, using the Box-Muller method.
 
 	Wraps QuantLib's normal variate generator.
@@ -21,13 +21,16 @@
 	\date February 11, 2014
 */
 
+#include <qfcl/miscellaneous/strings.hpp>
 //#include <ql/math/randomnumbers/boxmullergaussianrng.hpp>
 #include <qfcl/random/distribution/QuantLib/boxmullergaussianrng.hpp>
 
 #include <qfcl/random/distribution/distributions.hpp>
-//#include <qfcl/random/distribution/qfcl_distribution_adaptor.hpp>
 #include <qfcl/random/distribution/uniform_0in_1in.hpp>
 #include <qfcl/random/distribution/QuantLib_variate_generator_adaptor.hpp>
+#include <qfcl/utility/named_adapter.hpp>
+#include <qfcl/utility/names.hpp>
+#include <qfcl/utility/tmp.hpp>
 
 namespace qfcl {
 namespace random {
@@ -35,17 +38,17 @@ namespace random {
 namespace standard {
 
 template<typename RealType = double, typename U01_Dist = uniform_0in_1in<RealType>>
-class normal_QuantLib_box_muller_polar
+class QuantLib_normal_box_muller_polar
 {
 public:
 	typedef RealType result_type;
 
-	normal_QuantLib_box_muller_polar()
+	QuantLib_normal_box_muller_polar()
 		: _u01_gen(), _normal_gen(_u01_gen)
 	{
 	}
 	// QuantLib::BoxMullerGaussianRng<U01_generator &> not copyable.
-	//normal_QuantLib_box_muller_polar & operator=(normal_QuantLib_box_muller_polar<RealType, U01_Dist> const & other)
+	//QuantLib_normal_box_muller_polar & operator=(QuantLib_normal_box_muller_polar<RealType, U01_Dist> const & other)
 	//{
 	//	_u01_gen = other._u01_gen;
 	//	_normal_gen = other._normal_gen;
@@ -72,10 +75,16 @@ protected:
 }	// namespace standard
 
 template<typename RealType = double, typename U01_Dist = uniform_0in_1in<RealType>>
-class normal_QuantLib_box_muller_polar
-	: public qfcl_distribution_adaptor<standard::normal_QuantLib_box_muller_polar<RealType, U01_Dist>>
+class QuantLib_normal_box_muller_polar
+	: public named_adapter<
+		qfcl_distribution_adaptor<standard::QuantLib_normal_box_muller_polar<RealType, U01_Dist>>, 
+		tmp::concatenate<
+			string::QuantLib_prefix,
+			string::normal_box_muller_polar_name,
+			typename qfcl::names::template_typename<RealType>::type>>
 {
-	typedef qfcl_distribution_adaptor<standard::normal_QuantLib_box_muller_polar<RealType, U01_Dist>> base_type;
+	//! can bypass the named_adapter
+	typedef qfcl_distribution_adaptor<standard::QuantLib_normal_box_muller_polar<RealType, U01_Dist>> base_type;
 public:
 	using typename base_type::result_type;
 
@@ -85,7 +94,7 @@ public:
 		return _normal_gen.next().value;
 	}
 	// QuantLib design excludes this.
-	//void operator=(normal_QuantLib_box_muller_polar<RealType, U01_Dist> const & other)
+	//void operator=(QuantLib_normal_box_muller_polar<RealType, U01_Dist> const & other)
 	//{
 	//	base_type::operator=(other);
 	//}
@@ -94,9 +103,9 @@ public:
 };
 
 template<typename RealType, typename U01_Dist>
-const variate_method normal_QuantLib_box_muller_polar<RealType, U01_Dist>::method = BOX_MULLER_POLAR;
+const variate_method QuantLib_normal_box_muller_polar<RealType, U01_Dist>::method = BOX_MULLER_POLAR;
 
 }}	// namespace qfcl::random
-#endif	!QFCL_RANDOM_DISTRIBUTION_NORMAL_QUANTLIB_BOX_MULLER_POLAR_HPP
+#endif	!QFCL_RANDOM_DISTRIBUTION_QUANTLIB_NORMAL_BOX_MULLER_POLAR_HPP
 
 #endif	USE_QUANTLIB

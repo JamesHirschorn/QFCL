@@ -18,11 +18,13 @@
 	\date February 11, 2014
 */
 
+#include <cmath>
+
 #include <qfcl/random/distribution/distributions.hpp>
 #include <qfcl/random/distribution/qfcl_distribution_adaptor.hpp>
 #include <qfcl/random/distribution/uniform_0in_1in.hpp>
-//#include <qfcl/random/variate_generator.hpp>
-#include <cmath>
+#include <qfcl/utility/named_adapter.hpp>
+#include <qfcl/utility/names.hpp>
 
 namespace qfcl {
 namespace random {
@@ -67,11 +69,13 @@ private:
 
 }	// namespace standard
 
-//struct test_class
-//{};
+typedef qfcl::names::template_typename<double>::type double_tmp_string;
+
 template<typename RealType = double>
 class normal_box_muller 
-	: public qfcl_distribution_adaptor<standard::normal_box_muller<RealType>>
+	: public named_adapter<
+		qfcl_distribution_adaptor<standard::normal_box_muller<RealType>>,
+		qfcl::tmp::concatenate<string::normal_box_muller_name, typename qfcl::names::template_typename<RealType>::type>>					
 {
 	typedef qfcl_distribution_adaptor<standard::normal_box_muller<RealType>>
 		base_type;

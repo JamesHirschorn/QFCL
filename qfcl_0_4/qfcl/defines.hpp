@@ -26,6 +26,11 @@
 //! huge integer
 #define	QFCL_HUGE_INTEGER	long long
 
+//! maximum mpl::string length (boost default is 32)
+#ifndef BOOST_MPL_LIMIT_STRING_SIZE
+#define BOOST_MPL_LIMIT_STRING_SIZE 100
+#endif
+
 /*! \defgroup macros miscellaneous macros
 	@{
 */

@@ -24,7 +24,7 @@
 namespace qfcl {
 namespace random {
 //! Version conforming to C++ standards
-namespace std {
+namespace standard {
 
 template<typename Quantile, typename RealType = double, typename U01_Dist = uniform_0in_1in<RealType>>
 class normal_quantile 
@@ -49,11 +49,11 @@ private:
 	uniform01_distribution_type  _u01_dist;
 };
 
-}	// namespace std
+}	// namespace standard
 
 template<typename Quantile, typename RealType, typename U01_Dist>
 class normal_quantile 
-	: public qfcl_distribution_adaptor<std::normal_quantile<typename Quantile, typename RealType, typename U01_Dist>>
+	: public qfcl_distribution_adaptor<standard::normal_quantile<typename Quantile, typename RealType, typename U01_Dist>>
 {
 public:
 	static const variate_method method; 
