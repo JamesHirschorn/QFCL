@@ -310,6 +310,19 @@ void for_each_selector(
     for_each_selector<TypeList1, NAME>(selection, f);
 }
 
+// single element selections
+template<typename TypeList1, typename F>
+inline
+void for_each_selector(
+	std::string const& s1,
+	F f)
+{
+	names::vector_of_strings selection1;
+	selection1.push_back(s1); 
+
+	for_each_selector<TypeList1>(selection1, f);
+}
+
 /* 2-ary */
 
 template<
