@@ -6,12 +6,17 @@
 #include <boost/mpl/vector.hpp>
 namespace mpl = boost::mpl;
 
+#include <qfcl/miscellaneous/strings.hpp>
 #include <qfcl/random/distribution/boost_normal_distribution.hpp>
 #include <qfcl/random/distribution/boost_uniform_01.hpp>
 #include <qfcl/random/distribution/boost_normal_quantile.hpp>
 #include <qfcl/random/distribution/normal_box_muller.hpp>
+#include <qfcl/random/distribution/normal_box_muller_polar.hpp>
+#include <qfcl/random/distribution/uniform_0ex_1ex.hpp>
 #include <qfcl/random/distribution/uniform_0in_1in.hpp>
 #include <qfcl/utility/tmp.hpp>
+#include <qfcl/utility/named_adapter.hpp>
+#include <qfcl/utility/names.hpp>
 
 #ifdef USE_QUANTLIB
 //#include <qfcl/random/engine/quantlib_mt19937.hpp>
@@ -23,24 +28,36 @@ namespace mpl = boost::mpl;
 #include <qfcl/utility/tmp.hpp>
 
 //! list of continuous uniform distributions
-typedef mpl::vector<
-		qfcl::random::boost_uniform_01<>
-	,	qfcl::random::uniform_0in_1in<> >
+typedef qfcl::named_adapter< 
+		mpl::vector<
+				qfcl::random::boost_uniform_01<>
+			,	qfcl::random::uniform_0in_1in<>
+			,	qfcl::random::uniform_0ex_1ex<> 
+			>
+	,	qfcl::tmp::concatenate<
+				qfcl::string::prefix<qfcl::string::continuous_string, '_'>
+			,	qfcl::string::uniform_string
+			>
+	>
 continuous_uniform_distributions;
 
 //! list of normal univariate distributions
-typedef mpl::vector< 
-		qfcl::random::boost_normal_distribution<>
-	,	qfcl::random::boost_normal_quantile<>
-	,	qfcl::random::normal_box_muller<> 
+typedef qfcl::named_adapter<
+		mpl::vector< 
+				qfcl::random::boost_normal_distribution<>
+			,	qfcl::random::boost_normal_quantile<>
+			,	qfcl::random::normal_box_muller<> 
+			,	qfcl::random::normal_box_muller_polar<>
 #ifdef USE_QUANTLIB
-	,	qfcl::random::QuantLib_normal_box_muller_polar<>
+			,	qfcl::random::QuantLib_normal_box_muller_polar<>
 #endif USE_QUANTLIB
+			>
+	,	qfcl::string::normal_string
 	>
 normal_distributions;
 
 //! list of all families of distributions
-typedef mpl::vector<normal_distributions > distribution_families;
+typedef mpl::vector<continuous_uniform_distributions, normal_distributions> distribution_families;
 
 //! List of all distributions
 typedef qfcl::tmp::concatenate<
