@@ -49,20 +49,46 @@ namespace QuantLib {
       public:
         typedef Sample<Real> sample_type;
 		typedef typename boost::remove_reference<RNG>::type urng_type;
-        explicit BoxMullerGaussianRng(urng_type& uniformGenerator);
+		//! copy ctor
+		BoxMullerGaussianRng(BoxMullerGaussianRng const& other);
+        explicit BoxMullerGaussianRng(urng_type const& uniformGenerator);
+		//! assignment operator
+		BoxMullerGaussianRng& operator=(BoxMullerGaussianRng const & other);
         //! returns a sample from a Gaussian distribution
         sample_type next() const;
       private:
-        RNG uniformGenerator_;
+        urng_type const& uniformGenerator_;
         mutable bool returnFirst_;
         mutable Real firstValue_,secondValue_;
         mutable Real firstWeight_,secondWeight_;
         mutable Real weight_;
     };
 
+	template<typename RNG>
+	BoxMullerGaussianRng<RNG>::BoxMullerGaussianRng(
+												BoxMullerGaussianRng<RNG> const& other)
+	: uniformGenerator_(other.uniformGenerator_)
+	{
+		*this = other;
+	}
+
+	template<typename RNG>
+	BoxMullerGaussianRng<RNG>&
+	BoxMullerGaussianRng<RNG>::operator=(BoxMullerGaussianRng<RNG> const& other)
+	{
+		returnFirst_ = other.returnFirst_;
+		firstValue_ = other.firstValue_;
+		secondValue_ = other.secondValue_;
+		firstWeight_ = other.firstWeight_;
+		secondWeight_ = other.secondWeight_;
+		weight_ = other.weight_;
+
+		return *this;
+	}
+
     template <class RNG>
     BoxMullerGaussianRng<RNG>::BoxMullerGaussianRng(
-                                                urng_type& uniformGenerator)
+                                                urng_type const& uniformGenerator)
     : uniformGenerator_(uniformGenerator), returnFirst_(true),
       weight_(0.0) {}
 
