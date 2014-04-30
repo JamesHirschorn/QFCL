@@ -44,15 +44,23 @@ public:
 	typedef RealType result_type;
 
 	QuantLib_normal_box_muller_polar()
-		: _u01_gen(), _normal_gen(_u01_gen)
+		: _u01_gen(), _normal_gen(&_u01_gen)
 	{
 	}
-	// QuantLib::BoxMullerGaussianRng<U01_generator &> not copyable.
-	//QuantLib_normal_box_muller_polar & operator=(QuantLib_normal_box_muller_polar<RealType, U01_Dist> const & other)
-	//{
-	//	_u01_gen = other._u01_gen;
-	//	_normal_gen = other._normal_gen;
-	//}
+
+	//! copy ctor
+	QuantLib_normal_box_muller_polar(QuantLib_normal_box_muller_polar const& other)
+		: _u01_gen(other._u01_gen), _normal_gen(&_u01_gen)
+	{
+	}
+
+	//! operator=
+	QuantLib_normal_box_muller_polar & operator=(QuantLib_normal_box_muller_polar const & other)
+	{
+		_u01_gen = other._u01_gen;
+		_normal_gen = &_;
+		return *this;
+	}
 
 	template<typename Engine>
 	result_type operator()(Engine & e)
@@ -65,7 +73,7 @@ private:
 	// QuantLib BoxMullerGaussianRng uses the rejection method, and thus there is no upper
 	// bound to the random numbers consumed.
 	typedef QuantLib_variate_generator_adaptor<U01_Dist, 0> U01_generator;
-	typedef QuantLib::BoxMullerGaussianRng<U01_generator &> normal_generator;
+	typedef QuantLib::BoxMullerGaussianRng<U01_generator> normal_generator;
 
 	U01_generator _u01_gen;
 protected:
@@ -77,11 +85,12 @@ protected:
 template<typename RealType = double, typename U01_Dist = uniform_0in_1in<RealType>>
 class QuantLib_normal_box_muller_polar
 	: public named_adapter<
-		qfcl_distribution_adaptor<standard::QuantLib_normal_box_muller_polar<RealType, U01_Dist>>, 
-		tmp::concatenate<
-			string::QuantLib_prefix,
-			string::normal_box_muller_polar_name,
-			typename qfcl::names::template_typename<RealType>::type>>
+		  qfcl_distribution_adaptor<standard::QuantLib_normal_box_muller_polar<RealType, U01_Dist>> 
+		, tmp::concatenate<
+			  string::QuantLib_prefix
+			, string::normal_box_muller_polar_name
+			, typename qfcl::names::template_typename<RealType>::type
+			, typename qfcl::names::template_typename<U01_Dist>::type>>
 {
 	//! can bypass the named_adapter
 	typedef qfcl_distribution_adaptor<standard::QuantLib_normal_box_muller_polar<RealType, U01_Dist>> base_type;

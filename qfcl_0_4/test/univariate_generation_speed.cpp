@@ -17,15 +17,14 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
-using std::string;
 #include <vector>
-using std::vector;
 
 #include <boost/chrono.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
 #include <boost/lambda/lambda.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/mpl/push_front.hpp>
 namespace mpl = boost::mpl;
 #include <boost/program_options.hpp>
@@ -43,8 +42,9 @@ namespace po = boost::program_options;
 
 #include "utility/cpu_timer.hpp"
 
-#include "distribution_common.ipp"
-using namespace ::std;
+#include "distribution_common.hpp"
+
+using namespace std;
 
 // PRNG engine
 typedef qfcl::random::mt19937 Engine;
@@ -54,6 +54,7 @@ typedef qfcl::random::mt19937 Engine;
 #define	QFCL_ITERATIONS 100000000
 // output formatting
 const size_t indent_width = 5;
+const size_t precision = 12;
 
 // If you want to include speed tests for engines not satisfying the Named concept
 // (e.g. the boost::random engines)
@@ -78,7 +79,7 @@ void show_timing_results(uint64_t clock_cycles, CounterType iterations, const st
 	double time_taken = clock_cycles / cpu_freq;
 
 	std::cout 
-		<< boost::format("%1%.\nMethod: %2%\n%|3$18.2f| random numbers/second = %|4$13.8f| nanoseconds/random number = %|5$6.1f| CPU cycles/random number\n\n")
+		<< boost::format("%1%.\nMethod: %2%\n%|3$18.2f| random numbers/second = %|4$13.8f| nanoseconds/random number = %|5$6.1f| CPU cycles/random number\n")
 			% distribution_name % variate_method
 			% ( iterations / time_taken ) 
 			% ( time_taken * UINT64_C(1000000000) / iterations ) 
@@ -99,8 +100,9 @@ void show_timing_results(boost::timer::cpu_times t, CounterType iterations, cons
 template<typename CounterType, typename Timer>
 struct timer_object
 {
-	timer_object(Engine & e, CounterType iter, double freq) 
-		: engine(e), iterations(iter), cpu_frequency(freq) {} 
+	timer_object(Engine & e, CounterType iter, int num_variates_disp, double freq) 
+		: engine(e), iterations(iter), num_variates_displayed(num_variates_disp), 
+		  cpu_frequency(freq) {} 
 
 	template<typename Distribution>
 	void operator()(Distribution & dist) 
@@ -111,12 +113,25 @@ struct timer_object
 #ifdef INCLUDE_UNNAMED
 		show_timing_results(result, iterations, qfcl::names::name_or_typename(dist), dist.method.name(), cpu_frequency);
 #else
-		show_timing_results(result, iterations_, qfcl::names::name(dist), cpu_freq_);
+		show_timing_results(result, iterations_, qfcl::names::name(dist), dist.method.name(), cpu_frequency);
 #endif // INCLUDE_UNNAMED
+		
+		// diagnostics: show the next num_variate_displayed variates
+		const string out_line = "Random number %1%: %|2$." 
+			+ boost::lexical_cast<string>(precision) + "f|\n";
+		// use copies to preserve state
+		Distribution d = dist;
+		Engine e = engine;
+		for (int i = 0; i < num_variates_displayed; ++i)
+			std::cout 
+				<< boost::format(out_line) % (iterations + i + 1) % d(e);
+
+		std::cout << std::endl;
 	}
 
 	Engine & engine;
 	CounterType iterations;
+	int num_variates_displayed;
 	double cpu_frequency;
 };
 
@@ -140,17 +155,12 @@ struct rdtsc_variate_timer
 												
 		for (CounterType i = 0; i < iterations; ++i)		
 		{											
-			value = d_(e);							
+			value = d(e);							
 		}											
 												
 		uint64_t end = timer();						
 												
 		uint64_t result = end - start;	
-
-		// update the referenced objects
-		e_ = e;
-		// Distributions need not by assignment copyable.
-		//d_ = d;
 
 		return result;
 	}
@@ -171,13 +181,16 @@ typedef mpl::vector<rdtsc_variate_timer> timer_list;
 template<typename DistributionList, typename CounterType, typename SelectionMethod>
 void perform_speed_test(
 	const vector<string> & distributions_selected, 
-	const string & timer_name, Engine & e, CounterType iterations, double cpu_freq)
+	const string & timer_name, Engine & e, CounterType iterations, int num_variates_disp,
+	double cpu_freq)
 {
 	if (timer_name == mpl::c_str<rdtsc_variate_timer::name>::value)
+	{
         qfcl::type_selection::for_each_selector<DistributionList, SelectionMethod>(
 			distributions_selected,
-			timer_object<CounterType, rdtsc_variate_timer>(e, iterations, cpu_freq)
+			timer_object<CounterType, rdtsc_variate_timer>(e, iterations, num_variates_disp, cpu_freq)
 		);
+	}
 	//else if (timer_name == "boost")
  //       qfcl::type_selection::for_each_selector<DistributionList, SelectionMethod>(
 	//		distributions_selected, 
@@ -187,14 +200,30 @@ void perform_speed_test(
         throw std::logic_error("bad program");
 }
 
+// Tests a family of distributions.
+struct test_family_object
+{
+	test_family_object(vector<string>& dist_names)
+		: distribution_names(dist_names)
+	{}
+
+	template<typename Family>
+	void operator()(Family const& f)
+	{
+		distribution_names = qfcl::names::get_name_or_typenames<Family>(); 
+	}
+
+	vector<string>& distribution_names;
+};
+
 /** output function object */
 
 // boost::lambda did not work for this.
-struct named_functor
+struct named_functor_object
 {
 	typedef void result_type;
 
-	named_functor(std::ostringstream & oss, size_t indent_width)
+	named_functor_object(std::ostringstream & oss, size_t indent_width)
 		: oss_(oss), indent_width_(indent_width)
 	{};
 
@@ -231,8 +260,10 @@ int main(int argc, char * argv[])
 	string family;
 	string timer_param;
 
-	po::options_description engine_option("Distribution and Timer options");
-	engine_option.add_options()
+	int num_displayed_variates;
+
+	po::options_description distribution_options("Distribution options");
+	distribution_options.add_options()
 		("distributions,d", 
 		 po::value<string>(&distributions),
 		 "specifies a single or comma separated list of distribution(s) to be tested. " \
@@ -242,10 +273,18 @@ int main(int argc, char * argv[])
 		("family,f",
 		 po::value<string>(&family),
 		 "specifies a family of distributions to test.\n" \
-		 "-f l [ --family list ] for a list of all available families.")
+		 "-f l [ --family list ] for a list of all available families.");
+
+	po::options_description timer_options("Timer options");
+	timer_options.add_options()
 		("timer,t", po::value<string>(&timer_param) -> default_value(mpl::c_str<QFCL_TIMER::name>::value),
 		 "specifies which timer to use. " \
 		 "Type -t h [ --timer help ] for a list of all timers.");
+
+	po::options_description diagnostic_options("Diagnostic options");
+	diagnostic_options.add_options()
+		("verify,r", po::value<int>(&num_displayed_variates) -> default_value(0),
+		"how many variates to display.");
 
 	po::options_description primary_options("Alternatives to positional command line parameters");
 	primary_options.add_options()
@@ -253,7 +292,7 @@ int main(int argc, char * argv[])
 		 "number of random numbers to generate for each distribution");
 
 	po::options_description command_line_options;
-	command_line_options.add(generic_options).add(engine_option).add(primary_options);
+	command_line_options.add(generic_options).add(distribution_options).add(timer_options).add(diagnostic_options).add(primary_options);
 
 	po::positional_options_description pd;
 	pd.add("iterations", 1);
@@ -278,7 +317,9 @@ int main(int argc, char * argv[])
 			 << "   OR  " << argv[0] << " [options]" << endl << endl;
 		cout << "Example: " << argv[0] << " -e MT19937 -e boost-MT19937 10000000" << endl << endl;
 		cout << generic_options << endl;
-		cout << engine_option << endl;
+		cout << distribution_options << endl;
+		cout << timer_options << endl;
+		cout << diagnostic_options << endl;
 		cout << primary_options << endl;
 		if (vm.count("help"))
 			return EXIT_SUCCESS;
@@ -337,10 +378,10 @@ int main(int argc, char * argv[])
 
 			return EXIT_SUCCESS;
 		}
-		if (family == "normal")
-		{
-			distributions_selected = qfcl::names::get_name_or_typenames<normal_distributions>(); 
-		}
+
+		qfcl::type_selection::for_each_selector<distribution_families>(
+			family,
+			test_family_object(distributions_selected));
 	}
 	else // all engines
 	{
@@ -360,7 +401,7 @@ int main(int argc, char * argv[])
 			std::ostringstream oss;
 			const size_t indent_width = 5;
 
-			mpl::for_each<timer_list>( named_functor(oss, indent_width) );
+			mpl::for_each<timer_list>( named_functor_object(oss, indent_width) );
 
 			cout << oss.str();
 
@@ -384,7 +425,8 @@ int main(int argc, char * argv[])
 
 	Engine e;
 #ifdef INCLUDE_UNNAMED
-	perform_speed_test<distribution_list, CounterType, NAME_OR_TYPENAME>(distributions_selected, timer_param, e, iterations, cpu_frequency);
+	perform_speed_test<distribution_list, CounterType, NAME_OR_TYPENAME>(distributions_selected, timer_param, e, iterations, 
+		num_displayed_variates, cpu_frequency);
 #else
 	perform_speed_test<distribution_list, CounterType, NAME>(distributions_selected, timer_param, e, iterations, cpu_frequency);
 #endif // INCLUDE_UNNAMED

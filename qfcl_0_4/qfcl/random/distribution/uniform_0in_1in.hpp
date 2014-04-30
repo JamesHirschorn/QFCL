@@ -1,7 +1,7 @@
 /* qfcl/random/distribution/uniform_0in_1in.hpp
  *
  * Copyright (c) 2012 M.A. (Thijs) van den Berg, http://sitmo.com/
- * Copyright (C) 2012 James Hirschorn <James.Hirschorn@gmail.com>
+ * Copyright (C) 2014 James Hirschorn <James.Hirschorn@gmail.com>
  *
  * Use, modification and distribution are subject to 
  * the BOOST Software License, Version 1.0.
@@ -28,6 +28,7 @@
 
 namespace qfcl {
 namespace random {
+//! Version conforming to C++ standards
 namespace standard {
 template<class RealType = double>
 class uniform_0in_1in 
@@ -91,5 +92,5 @@ private:
     result_type         _factor;
 };
 
-}} // namespaces
-#endif
+}}	// namespace qfcl::random
+#endif	!QFCL_RANDOM_UNIFORM_0IN_1IN_HPP

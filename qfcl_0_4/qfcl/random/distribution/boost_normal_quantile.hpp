@@ -23,7 +23,7 @@
 #include <qfcl/random/distribution/distributions.hpp>
 #include <qfcl/random/distribution/normal_quantile.hpp>
 #include <qfcl/random/distribution/qfcl_distribution_adaptor.hpp>
-#include <qfcl/random/distribution/uniform_0in_1in.hpp>
+#include <qfcl/random/distribution/uniform_0ex_1ex.hpp>
 #include <qfcl/utility/tmp.hpp>
 #include <qfcl/utility/named_adapter.hpp>
 
@@ -53,15 +53,15 @@ private:
 //! Version conforming to C++ standards
 namespace standard {
 
-template<typename RealType = double, typename U01_Dist = uniform_0in_1in<RealType>>
+template<typename RealType = double, typename U01_Dist = uniform_0ex_1ex<RealType>>
 class boost_normal_quantile 
-	: public normal_quantile<qfcl::random::detail::boost_quantile<RealType>, RealType, U01_Dist>
+	: public standard::normal_quantile<qfcl::random::detail::boost_quantile<RealType>, RealType, U01_Dist>
 { 
 };
 
 }	// namespace standard
 
-template<typename RealType = double, typename U01_Dist = uniform_0in_1in<RealType>>
+template<typename RealType = double, typename U01_Dist = uniform_0ex_1ex<RealType>>
 class boost_normal_quantile 
 	: public named_adapter<
 				  qfcl_distribution_adaptor<standard::boost_normal_quantile<RealType, U01_Dist>>

@@ -60,14 +60,18 @@ const char * name_or_typename(T & t, typename boost::enable_if<traits::is_named<
 /*! \brief gives an mpl::string for the template type name.
 	\note \param T must satisfy the Named Model, or else the definition must be specialized.
 */
+
+static const char template_char_left	= '{';
+static const char template_char_right	= '}';
+
 template<typename T>
 struct template_typename
-	: string::brackets<typename name_tag<T>::type, '<', '>'>
+	: string::brackets<typename name_tag<T>::type, template_char_left, template_char_right>
 {};
 
 template<>
 struct template_typename<double> 
-	: string::brackets<string::double_string, '<', '>'>
+	: string::brackets<string::double_string, template_char_left, template_char_right>
 {};
 
 typedef std::vector<std::string> vector_of_strings;

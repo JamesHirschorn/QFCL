@@ -19,14 +19,14 @@
 
 #include <qfcl/random/distribution/distributions.hpp>
 #include <qfcl/random/distribution/qfcl_distribution_adaptor.hpp>
-#include <qfcl/random/distribution/uniform_0in_1in.hpp>
+#include <qfcl/random/distribution/uniform_0ex_1ex.hpp>
 
 namespace qfcl {
 namespace random {
 //! Version conforming to C++ standards
 namespace standard {
 
-template<typename Quantile, typename RealType = double, typename U01_Dist = uniform_0in_1in<RealType>>
+template<typename Quantile, typename RealType = double, typename U01_Dist = uniform_0ex_1ex<RealType>>
 class normal_quantile 
 { 
 public:

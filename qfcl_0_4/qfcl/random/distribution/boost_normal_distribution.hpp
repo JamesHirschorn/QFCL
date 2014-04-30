@@ -42,7 +42,7 @@ class boost_normal_distribution
 		qfcl_distribution_adaptor<boost::normal_distribution<Real>>,
 		tmp::concatenate<
 			string::boost_prefix, 
-			string::normal_box_muller_polar_name,
+			string::normal_box_muller_name,
 			typename qfcl::names::template_typename<Real>::type>>  
 {
 public:

@@ -48,47 +48,21 @@ namespace QuantLib {
     class BoxMullerGaussianRng {
       public:
         typedef Sample<Real> sample_type;
-		typedef typename boost::remove_reference<RNG>::type urng_type;
-		//! copy ctor
-		BoxMullerGaussianRng(BoxMullerGaussianRng const& other);
-        explicit BoxMullerGaussianRng(urng_type const& uniformGenerator);
-		//! assignment operator
-		BoxMullerGaussianRng& operator=(BoxMullerGaussianRng const & other);
+        typedef RNG urng_type;
+        explicit BoxMullerGaussianRng(RNG const* uniformGenerator);
         //! returns a sample from a Gaussian distribution
         sample_type next() const;
       private:
-        urng_type const& uniformGenerator_;
+        RNG const* uniformGenerator_;
         mutable bool returnFirst_;
         mutable Real firstValue_,secondValue_;
         mutable Real firstWeight_,secondWeight_;
         mutable Real weight_;
     };
 
-	template<typename RNG>
-	BoxMullerGaussianRng<RNG>::BoxMullerGaussianRng(
-												BoxMullerGaussianRng<RNG> const& other)
-	: uniformGenerator_(other.uniformGenerator_)
-	{
-		*this = other;
-	}
-
-	template<typename RNG>
-	BoxMullerGaussianRng<RNG>&
-	BoxMullerGaussianRng<RNG>::operator=(BoxMullerGaussianRng<RNG> const& other)
-	{
-		returnFirst_ = other.returnFirst_;
-		firstValue_ = other.firstValue_;
-		secondValue_ = other.secondValue_;
-		firstWeight_ = other.firstWeight_;
-		secondWeight_ = other.secondWeight_;
-		weight_ = other.weight_;
-
-		return *this;
-	}
-
     template <class RNG>
     BoxMullerGaussianRng<RNG>::BoxMullerGaussianRng(
-                                                urng_type const& uniformGenerator)
+                                                RNG const* uniformGenerator)
     : uniformGenerator_(uniformGenerator), returnFirst_(true),
       weight_(0.0) {}
 
@@ -98,10 +72,10 @@ namespace QuantLib {
         if (returnFirst_) {
             Real x1,x2,r,ratio;
             do {
-                typename urng_type::sample_type s1 = uniformGenerator_.next();
+                typename RNG::sample_type s1 = uniformGenerator_ -> next();
                 x1 = s1.value*2.0-1.0;
                 firstWeight_ = s1.weight;
-                typename urng_type::sample_type s2 = uniformGenerator_.next();
+                typename RNG::sample_type s2 = uniformGenerator_ -> next();
                 x2 = s2.value*2.0-1.0;
                 secondWeight_ = s2.weight;
                 r = x1*x1+x2*x2;

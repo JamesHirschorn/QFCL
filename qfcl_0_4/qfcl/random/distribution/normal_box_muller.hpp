@@ -1,7 +1,7 @@
 /* qfcl/random/distribution/normal_box_muller.hpp
  *
  * Copyright (c) 2012 M.A. (Thijs) van den Berg, http://sitmo.com/
- * Copyright (C) 2012 James Hirschorn <James.Hirschorn@gmail.com>
+ * Copyright (C) 2014 James Hirschorn <James.Hirschorn@gmail.com>
  *
  * Use, modification and distribution are subject to 
  * the BOOST Software License, Version 1.0.
@@ -14,7 +14,7 @@
 /*! \file qfcl/random/distribution/normal_box_muller.hpp
 	\brief Univariate normal PRNG, using the Box-Muller method.
 
-	\author James Hirschorn
+	\author M.A. (Thijs) van den Berg, James Hirschorn
 	\date February 11, 2014
 */
 
@@ -22,7 +22,7 @@
 
 #include <qfcl/random/distribution/distributions.hpp>
 #include <qfcl/random/distribution/qfcl_distribution_adaptor.hpp>
-#include <qfcl/random/distribution/uniform_0in_1in.hpp>
+#include <qfcl/random/distribution/uniform_0in_1ex.hpp>
 #include <qfcl/utility/named_adapter.hpp>
 #include <qfcl/utility/names.hpp>
 
@@ -31,7 +31,9 @@ namespace random {
 //! Version conforming to C++ standards
 namespace standard {
 
-template<typename RealType = double>
+/*! \note Would be better to use a placeholder, or else perhaps a static assert.
+ */
+template<typename RealType = double, typename U01_Dist = uniform_0in_1ex<RealType>>
 struct normal_box_muller 
 { 
 	typedef RealType result_type; 
@@ -47,17 +49,17 @@ struct normal_box_muller
         if (_valid == false) {
             _u1 = _uniform_distribution(e);
             _u2 = _uniform_distribution(e);
-            _rho = ::std::sqrt( -2.0 * ::std::log( 1.0 - _u2 ));
+            _rho = std::sqrt( -2.0 * std::log( 1.0 - _u2 ));
             _valid = true;
-            return _rho * ::std::cos(2 * 3.14159265358979323846 * _u1);
+            return _rho * std::cos(2 * 3.14159265358979323846 * _u1);
         }
         else {
             _valid = false;
-            return _rho * ::std::sin(2 * 3.14159265358979323846 * _u1);
+            return _rho * std::sin(2 * 3.14159265358979323846 * _u1);
         }
 	}
 private:
-    typedef uniform_0in_1in<RealType> uniform_distribution_type;
+    typedef U01_Dist uniform_distribution_type;
     
     uniform_distribution_type	_uniform_distribution;
     bool						_valid;
@@ -69,13 +71,17 @@ private:
 
 }	// namespace standard
 
-typedef qfcl::names::template_typename<double>::type double_tmp_string;
-
-template<typename RealType = double>
+template<typename RealType = double, typename U01_Dist = uniform_0in_1ex<RealType>>
 class normal_box_muller 
 	: public named_adapter<
-		qfcl_distribution_adaptor<standard::normal_box_muller<RealType>>,
-		qfcl::tmp::concatenate<string::normal_box_muller_name, typename qfcl::names::template_typename<RealType>::type>>					
+		  qfcl_distribution_adaptor<standard::normal_box_muller<RealType, U01_Dist>>
+		, typename
+		  qfcl::tmp::concatenate<
+			  string::normal_box_muller_name 
+			, typename qfcl::names::template_typename<RealType>::type
+			, typename names::template_typename<U01_Dist>::type
+			>::type
+		>					
 {
 	typedef qfcl_distribution_adaptor<standard::normal_box_muller<RealType>>
 		base_type;
@@ -87,11 +93,11 @@ public:
 //{
 //};
 
-template<typename RealType>
+template<typename RealType, typename U01_Dist>
 //const variate_method qfcl_distribution_adaptor<RealType, double>::method = BOX_MULLER;
 //const variate_method qfcl_distribution_adaptor<standard::normal_box_muller<RealType>, standard::normal_box_muller<RealType>::result_type>::method = BOX_MULLER;
 //const variate_method normal_box_muller<RealType>::base_type::method = BOX_MULLER;
-const variate_method normal_box_muller<RealType>::method = BOX_MULLER_BASIC;
+const variate_method normal_box_muller<RealType, U01_Dist>::method = BOX_MULLER_BASIC;
 
 }}	// namespace qfcl::random
 #endif	!QFCL_RANDOM_DISTRIBUTION_NORMAL_BOX_MULLER_HPP

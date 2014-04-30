@@ -39,7 +39,7 @@ namespace mpl = boost::mpl;
 
 #include <qfcl/random/distribution/normal_box_muller.hpp>
 #include <qfcl/random/distribution/normal_box_muller_polar.hpp>
-#include <qfcl/random/distribution/normal_QuantLib_box_muller_polar.hpp>
+#include <qfcl/random/distribution/QuantLib_normal_box_muller_polar.hpp>
 
 #include "utility/cpu_timer.hpp"
 
@@ -152,9 +152,9 @@ int main(int argc, char * argv[])
 			qfcl::names::name_or_typename(d), qfcl::names::name_or_typename(Distribution::method), 
 			cpu_frequency);
 	}	
-	// normal_QuantLib_box_muller
+	// QuantLib_normal_box_muller
 	{
-		typedef  normal_QuantLib_box_muller_polar<> Distribution;
+		typedef  QuantLib_normal_box_muller_polar<> Distribution;
 		Engine e;
 		Distribution d;
 	

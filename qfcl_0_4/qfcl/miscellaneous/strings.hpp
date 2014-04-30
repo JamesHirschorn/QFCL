@@ -53,10 +53,6 @@ struct number<n, typename enable_if<and_<
 template<int n>
 struct number : public detail::number<n>
 {};
-	
-// boost
-typedef boost::mpl::string<'b', 'o', 'o', 's', 't'>::type boost_string;
-typedef prefix<boost_string>::type boost_prefix;
 
 // QuantLib
 typedef boost::mpl::string<'Q', 'u', 'a', 'n', 't'>::type _Quant_string;
@@ -67,9 +63,19 @@ typedef prefix<QuantLib_string>::type QuantLib_prefix;
 // Reverse
 typedef boost::mpl::string<'R', 'e', 'v', 'e', 'r', 's', 'e'>::type Reverse_string;
 typedef prefix<Reverse_string>::type Reverse_prefix;
+	
+// boost
+typedef boost::mpl::string<'b', 'o', 'o', 's', 't'>::type boost_string;
+typedef prefix<boost_string>::type boost_prefix;
+
+// continuous
+typedef boost::mpl::string<'c', 'o', 'n', 't', 'i', 'n', 'u', 'o', 'u', 's'>::type continuous_string;
 
 // double
 typedef boost::mpl::string<'d', 'o', 'u', 'b', 'l', 'e'>::type double_string;
+
+// ex
+typedef boost::mpl::string<'e', 'x'>::type ex_string;
 
 // in
 typedef boost::mpl::string<'i', 'n'>::type in_string;

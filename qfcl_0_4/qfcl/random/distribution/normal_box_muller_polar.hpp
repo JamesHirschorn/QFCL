@@ -1,7 +1,7 @@
 /* qfcl/random/distribution/normal_box_muller_polar.hpp
  *
  * Copyright (c) 2012 M.A. (Thijs) van den Berg, http://sitmo.com/
- * Copyright (C) 2012 James Hirschorn <James.Hirschorn@gmail.com>
+ * Copyright (C) 2014 James Hirschorn <James.Hirschorn@gmail.com>
  *
  * Use, modification and distribution are subject to 
  * the BOOST Software License, Version 1.0.
@@ -14,20 +14,23 @@
 /*! \file qfcl/random/distribution/normal_box_muller_polar.hpp
 	\brief Univariate normal PRNG, using the polar version of Box-Muller method.
 
-	\author James Hirschorn
+	\author M.A. (Thijs) van den Berg, James Hirschorn
 	\date March 28, 2014
 */
-
-#include <qfcl/random/distribution/uniform_0in_1in.hpp>
-#include <qfcl/random/variate_generator.hpp>
 #include <cmath>
+
+#include <qfcl/random/distribution/distributions.hpp>
+#include <qfcl/random/distribution/qfcl_distribution_adaptor.hpp>
+#include <qfcl/random/distribution/uniform_0in_1in.hpp>
+#include <qfcl/utility/named_adapter.hpp>
+#include <qfcl/utility/names.hpp>
 
 namespace qfcl {
 namespace random {
 //! Version conforming to C++ standards
 namespace standard {
 
-template<typename RealType = double>
+template<typename RealType = double, typename U01_Dist = uniform_0in_1in<RealType>>
 struct normal_box_muller_polar 
 { 
 	typedef RealType result_type; 
@@ -56,7 +59,7 @@ struct normal_box_muller_polar
         return _cached_value;	
 	}
 private:
-    typedef uniform_0in_1in<RealType> uniform_distribution_type;
+    typedef U01_Dist uniform_distribution_type;
     
     uniform_distribution_type	_uniform_distribution;
     bool						_valid;
@@ -70,9 +73,17 @@ private:
 
 }	// namespace standard
 
-template<typename RealType = double>
+template<typename RealType = double, typename U01_Dist = uniform_0in_1in<RealType>>
 class normal_box_muller_polar 
-	: public qfcl_distribution_adaptor<standard::normal_box_muller_polar<RealType>>
+	: public named_adapter<
+				  qfcl_distribution_adaptor<standard::normal_box_muller_polar<RealType, U01_Dist>>
+				,   typename
+					qfcl::tmp::concatenate<
+					  string::normal_box_muller_polar_name 
+					, typename qfcl::names::template_typename<RealType>::type
+					, typename names::template_typename<U01_Dist>::type
+					>::type
+				>
 {
 	typedef qfcl_distribution_adaptor<standard::normal_box_muller_polar<RealType>>
 		base_type;
@@ -80,8 +91,8 @@ public:
 	static const variate_method method; 
 };
 
-template<typename RealType>
-const variate_method normal_box_muller_polar<RealType>::method = BOX_MULLER_POLAR;
+template<typename RealType, typename U01_Dist>
+const variate_method normal_box_muller_polar<RealType, U01_Dist>::method = BOX_MULLER_POLAR;
 
 }} // namespace::qfcl::random
 #endif	!QFCL_RANDOM_DISTRIBUTION_NORMAL_BOX_MULLER_POLAR_HPP

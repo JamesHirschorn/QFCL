@@ -1,14 +1,32 @@
-//  Copyright (c) 2012 M.A. (Thijs) van den Berg, http://sitmo.com/
-//
-//  Use, modification and distribution are subject to the BOOST Software License. 
-// (See accompanying file LICENSE.txt)
+/* qfcl/random/distribution/normal_inversion.hpp
+ *
+ * Copyright (c) 2012 M.A. (Thijs) van den Berg, http://sitmo.com/
+ * Copyright (C) 2014 James Hirschorn <James.Hirschorn@gmail.com>
+ *
+ * Use, modification and distribution are subject to 
+ * the BOOST Software License, Version 1.0.
+ * (See accompanying file LICENSE.txt)
+ */
 
 #ifndef QFCL_RANDOM_DISTRIBUTION_NORMAL_INVERSION_HPP
 #define QFCL_RANDOM_DISTRIBUTION_NORMAL_INVERSION_HPP
 
-#include <qfcl/random/distribution/uniform_0ex_1ex.hpp>
-#include <qfcl/random/variate_generator.hpp>
+/*! \file qfcl/random/distribution/normal_inversion.hpp
+	\brief Univariate normal PRNG, using the quantile method.
+
+	\author M.A. (Thijs) van den Berg, James Hirschorn
+	\date April 22, 2014
+*/
+
 #include <cmath>
+
+#include <qfcl/miscellaneous/strings.hpp>
+#include <qfcl/random/distribution/distributions.hpp>
+#include <qfcl/random/distribution/qfcl_distribution_adaptor.hpp>
+#include <qfcl/random/distribution/uniform_0ex_1ex.hpp>
+#include <qfcl/random/distribution/normal_quantile.hpp>
+#include <qfcl/utility/named_adapter.hpp>
+#include <qfcl/utility/names.hpp>
 
 namespace qfcl {
 namespace random {
@@ -67,37 +85,68 @@ namespace detail {
         return x;
     }
 
-}
+	template<typename RealType>
+	struct quantile
+	{
+		quantile(RealType mu, RealType sigma)
+			: _mu(mu), _sigma(sigma)
+		{};
 
-template<class RealType = double>
-struct normal_inversion_distribution 
+		RealType operator()(RealType x) const
+		{
+			return _mu + _sigma * normal_inv(x);
+		}
+	private:
+		RealType _mu, _sigma;
+	};
+}	// namespace detail
+
+//! Version conforming to C++ standards
+namespace standard {
+
+template<typename RealType = double, typename U01_Dist = uniform_0ex_1ex<RealType>>
+class normal_inversion 
+	: public standard::normal_quantile<qfcl::random::detail::quantile<RealType>, RealType, U01_Dist>
 { 
-	typedef RealType result_type; 
-
-	// ctor
-	normal_inversion_distribution(RealType mu_ = 0.0, RealType sigma_ = 1.0)
-		: mu(mu_), sigma(sigma_) {}
-
-	RealType mu;
-	RealType sigma;
 };
 
-//  Specialization for standard normal distribution
-template<typename RealType = double>
-struct std_normal_inversion_distribution : normal_inversion_distribution<RealType>
+}	// namespace standard
+
+template<typename RealType = double, typename U01_Dist = uniform_0ex_1ex<RealType>>
+class normal_inversion
+	: public named_adapter<
+		  qfcl_distribution_adaptor<standard::normal_inversion<RealType, U01_Dist>>
+		, typename
+		  qfcl::tmp::concatenate<
+			  string::normal_quantile_name
+			, typename qfcl::names::template_typename<RealType>::type
+			, typename names::template_typename<U01_Dist>::type
+			>::type
+		>					
 {
+public:
+	static const variate_method method; 
 };
 
+template<typename RealType, typename U01_Dist>
+const variate_method normal_inversion<RealType, U01_Dist>::method = QUANTILE;
+
+//  Specialization for standard normal distribution, will give noticeably better performance?
+//template<typename RealType = double>
+//struct std_normal_inversion_distribution : normal_inversion_distribution<RealType>
+//{
+//};
+//
 // Keep these?
-typedef normal_inversion_distribution<double> normal_inversion;
-typedef std_normal_inversion_distribution<double> std_normal_inversion;
+//typedef normal_inversion_distribution<double> normal_inversion;
+//typedef std_normal_inversion_distribution<double> std_normal_inversion;
 
 template<class Engine, class RealType >
-class variate_generator<Engine, normal_inversion_distribution<RealType> >
+class variate_generator<Engine, standard::normal_inversion<RealType> >
 {
 public:
 	typedef Engine									engine_type;
-	typedef normal_inversion_distribution<RealType>	distribution_type;
+	typedef normal_inversion<RealType>	distribution_type;
     typedef RealType								result_type;
     
 
@@ -125,39 +174,40 @@ private:
     uniform_rng_type     _uniform_rng;
 };
 
+// NOTE: First need specialized std_normal_inversion distribution?
 // specialized version for (possibly) better performance
-template<class Engine, class RealType >
-class variate_generator<Engine, std_normal_inversion_distribution<RealType> >
-{
-public:
-	typedef Engine									engine_type;
-	typedef normal_inversion_distribution<RealType>	distribution_type;
-    typedef RealType								result_type;
-    
+//template<class Engine, class RealType >
+//class variate_generator<Engine, std_normal_inversion_distribution<RealType> >
+//{
+//public:
+//	typedef Engine									engine_type;
+//	typedef normal_inversion_distribution<RealType>	distribution_type;
+//    typedef RealType								result_type;
+//    
+//
+//public:
+//    // constructor
+//    variate_generator(engine_type e, distribution_type d)
+//    : _eng(e), _dist(d), _uniform_rng(e,_uniform_distribution)
+//    {
+//    }
+//    
+//    result_type operator()() 
+//    {
+//		return detail::normal_inv( _uniform_rng() );
+//    }
+//
+//private:
+//    typedef uniform_0ex_1ex<RealType> uniform_distribution_type;
+//    typedef variate_generator< engine_type, uniform_distribution_type > uniform_rng_type;
+//
+//private:
+//    typename engine_type         _eng;
+//    typename distribution_type   _dist;
+//    
+//    uniform_distribution_type _uniform_distribution;
+//    uniform_rng_type     _uniform_rng;
+//};
 
-public:
-    // constructor
-    variate_generator(engine_type e, distribution_type d)
-    : _eng(e), _dist(d), _uniform_rng(e,_uniform_distribution)
-    {
-    }
-    
-    result_type operator()() 
-    {
-		return detail::normal_inv( _uniform_rng() );
-    }
-
-private:
-    typedef uniform_0ex_1ex<RealType> uniform_distribution_type;
-    typedef variate_generator< engine_type, uniform_distribution_type > uniform_rng_type;
-
-private:
-    typename engine_type         _eng;
-    typename distribution_type   _dist;
-    
-    uniform_distribution_type _uniform_distribution;
-    uniform_rng_type     _uniform_rng;
-};
-
-}} // namespaces
-#endif
+}}	// namespace qfcl::random
+#endif	!QFCL_RANDOM_DISTRIBUTION_NORMAL_INVERSION_HPP
