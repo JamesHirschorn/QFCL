@@ -122,23 +122,23 @@ set_target_properties( EngineSpeedHardCoded PROPERTIES
 					   OUTPUT_NAME engine_speed_hard_coded )
 target_link_libraries( EngineSpeedHardCoded QFCL NTL ${Boost_LIBRARIES} ${QuantLib_LIBRARIES} ) 
 
-set( source_files univariate_generation_speed.cpp distribution_common.hpp utility/cpu_timer.hpp )
-add_executable( UnivariateGenerationSpeed ${source_files} )
+set( source_files univariate_distribution_speed.cpp distribution_common.hpp utility/cpu_timer.hpp )
+add_executable( UnivariateDistributionSpeed ${source_files} )
 source_group( "Source Files" FILES ${source_files} )
-set_target_properties( UnivariateGenerationSpeed PROPERTIES
+set_target_properties( UnivariateDistributionSpeed PROPERTIES
 					   FOLDER test/QFCLPerformanceTests
 					   COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINITIONS}"
-					   OUTPUT_NAME univariate_generation_speed )
-target_link_libraries( UnivariateGenerationSpeed QFCL NTL ${Boost_LIBRARIES} ${QuantLib_LIBRARIES} ) 
+					   OUTPUT_NAME univariate_distribution_speed )
+target_link_libraries( UnivariateDistributionSpeed QFCL NTL ${Boost_LIBRARIES} ${QuantLib_LIBRARIES} ) 
 
-set( source_files univariate_generation_speed_hard_coded.cpp utility/cpu_timer.hpp )
-add_executable( UnivariateGenerationSpeedHardCoded ${source_files} )
+set( source_files univariate_distribution_speed_hard_coded.cpp utility/cpu_timer.hpp )
+add_executable( UnivariateDistributionSpeedHardCoded ${source_files} )
 source_group( "Source Files" FILES ${source_files} )
-set_target_properties( UnivariateGenerationSpeedHardCoded PROPERTIES
+set_target_properties( UnivariateDistributionSpeedHardCoded PROPERTIES
 					   FOLDER test/QFCLPerformanceTests
 					   COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINITIONS}"
-					   OUTPUT_NAME univariate_generation_speed_hard_coded )
-target_link_libraries( UnivariateGenerationSpeedHardCoded QFCL NTL ${Boost_LIBRARIES} ${QuantLib_LIBRARIES} ) 
+					   OUTPUT_NAME univariate_distribution_speed_hard_coded )
+target_link_libraries( UnivariateDistributionSpeedHardCoded QFCL NTL ${Boost_LIBRARIES} ${QuantLib_LIBRARIES} ) 
 
 set( source_files engine_profiler.cpp engine_common.ipp utility/cpu_timer.hpp )
 add_executable( EngineProfiler ${source_files} )

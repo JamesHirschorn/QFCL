@@ -1,4 +1,4 @@
-/* test/normal_univariate_speed.cpp
+/* test/univariate_distribution_speed.cpp
  *
  * Copyright (C) 2014 James Hirschorn <James.Hirschorn@gmail.com>
  *
@@ -7,8 +7,8 @@
  * (See accompanying file LICENSE.txt)
  */
 
-/*! \file test/normal_univariate_speed.cpp
-	\brief univariate generation speed test
+/*! \file test/univariate_distribution_speed.cpp
+	\brief univariate distribution speed test
 
 	\author James Hirschorn
 	\date February 7, 2014
@@ -241,8 +241,6 @@ private:
 
 int main(int argc, char * argv[])
 {
-	//using namespace std;
-	//using namespace qfcl::random;
 	using namespace qfcl::type_selection;
 
 	typedef unsigned long long CounterType;
@@ -304,7 +302,7 @@ int main(int argc, char * argv[])
 	if (vm.count("version"))
 	{
 		cout << argv[0] << ", QFCL Version " << QFCL_VERSION << endl;
-		cout << "Copyright 2012, James Hirschorn <James.Hirschorn@gmail.com>" << endl;
+		cout << "Copyright 2014, James Hirschorn <James.Hirschorn@gmail.com>" << endl;
 		return EXIT_SUCCESS;
 	}
 
@@ -312,10 +310,13 @@ int main(int argc, char * argv[])
 	if (argc == 1 || vm.count("help")) 
 	{
 		cout << argv[0] << " measures the speed of pseudo-random number generation\n" \
-			 << "of various engines." << endl << endl;
+			 << "of various univariate distributions." << endl << endl;
 		cout << "Usage: " << argv[0] << " [options] [iterations]" << endl
 			 << "   OR  " << argv[0] << " [options]" << endl << endl;
-		cout << "Example: " << argv[0] << " -e MT19937 -e boost-MT19937 10000000" << endl << endl;
+		cout << "Examples: " << argv[0] << " -f normal -i 10000000" << endl;
+		cout << "          " << argv[0] 
+			 << " -d normal_Box-Muller{double}{uniform_0in_1ex{double}},boost-normal_Box-Muller{double} 1000000000" 
+			 << endl << endl;
 		cout << generic_options << endl;
 		cout << distribution_options << endl;
 		cout << timer_options << endl;
