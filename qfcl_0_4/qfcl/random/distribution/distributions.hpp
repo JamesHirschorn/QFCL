@@ -26,39 +26,6 @@
 #include <qfcl/utility/tmp.hpp>
 
 namespace qfcl {
-namespace random {
-
-enum variate_method_enum {
-	QUANTILE,
-	BOX_MULLER_BASIC,
-	BOX_MULLER_POLAR
-};
-
-struct variate_method
-{
-	variate_method(variate_method_enum method)
-		: _method(method)
-	{}
-
-	const ::std::string name() const
-	{
-		switch (_method)
-		{
-		case QUANTILE:
-			return "Quantile";
-		case BOX_MULLER_BASIC:
-			return "Box-Muller (basic)";
-		case BOX_MULLER_POLAR:
-			return "Box-Muller (polar)";
-		default:
-			throw ::std::logic_error("bad program");
-		}
-	}
-private:
-	variate_method_enum _method;
-};
-
-}	// namespace random
 
 namespace string {
 
@@ -71,6 +38,56 @@ typedef qfcl::tmp::concatenate<string::prefix<normal_box_muller_name, '_'>::type
 	normal_box_muller_polar_name;
 
 }	// namespace string
+
+namespace random {
+
+enum variate_method_enum {
+	QUANTILE,
+	BOX_MULLER_BASIC,
+	BOX_MULLER_POLAR
+};
+
+template<variate_method_enum method>
+struct variate_method
+{
+};
+
+template<>
+struct variate_method<QUANTILE>
+{
+	typedef string::quantile_string	name;
+};
+
+template<>
+struct variate_method<BOX_MULLER_POLAR>
+{
+	typedef string::normal_box_muller_polar_name name;
+};
+//struct variate_method
+//{
+//	variate_method(variate_method_enum method)
+//		: _method(method)
+//	{}
+//
+//	const ::std::string name() const
+//	{
+//		switch (_method)
+//		{
+//		case QUANTILE:
+//			return "Quantile";
+//		case BOX_MULLER_BASIC:
+//			return "Box-Muller (basic)";
+//		case BOX_MULLER_POLAR:
+//			return "Box-Muller (polar)";
+//		default:
+//			throw ::std::logic_error("bad program");
+//		}
+//	}
+//private:
+//	variate_method_enum _method;
+//};
+//
+}	// namespace random
 
 }	// namespace qfcl
 
