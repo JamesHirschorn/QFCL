@@ -115,21 +115,18 @@ class normal_inversion
 template<typename RealType = double, typename U01_Dist = uniform_0ex_1ex<RealType>>
 class normal_inversion
 	: public named_adapter<
-		  qfcl_distribution_adaptor<standard::normal_inversion<RealType, U01_Dist>>
-		, typename
-		  qfcl::tmp::concatenate<
-			  string::normal_quantile_name
-			, typename qfcl::names::template_typename<RealType>::type
-			, typename names::template_typename<U01_Dist>::type
-			>::type
+			qfcl_distribution_adaptor<
+			standard::normal_inversion<RealType, U01_Dist>
+		  , variate_method<QUANTILE>
+		  >
+		, typename qfcl::tmp::concatenate<
+			string::normal_quantile_name
+		  , typename qfcl::names::template_typename<RealType>::type
+		  , typename names::template_typename<U01_Dist>::type
+		  >::type
 		>					
 {
-public:
-	static const variate_method method; 
 };
-
-template<typename RealType, typename U01_Dist>
-const variate_method normal_inversion<RealType, U01_Dist>::method = QUANTILE;
 
 //  Specialization for standard normal distribution, will give noticeably better performance?
 //template<typename RealType = double>

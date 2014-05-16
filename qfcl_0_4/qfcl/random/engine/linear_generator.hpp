@@ -244,12 +244,12 @@ private:
 	static bool JumpMatrix_file_exists_imp(unsigned long long jump_size, bool reverse = false);
 
 	//! the name of the file containing the transition matrix
-	static ::std::string transition_matrix_filename(bool reverse = false);
+	static std::string transition_matrix_filename(bool reverse = false);
 	//! the name of the file containing the jump matrix
-	static ::std::string jump_matrix_filename(unsigned long long jump_size, bool reverse = false);
+	static std::string jump_matrix_filename(unsigned long long jump_size, bool reverse = false);
 	//! handles \c linear_generator matrix reads, computing and storing on disk when needed
 	template<typename F>
-    static matrix_t obtain_matrix(const ::std::string & filename, const F & f);
+    static matrix_t obtain_matrix(const std::string & filename, const F & f);
 
 	struct transition_matrix_functor;
 	struct jump_matrix_functor;

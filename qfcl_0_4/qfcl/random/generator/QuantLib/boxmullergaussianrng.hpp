@@ -24,13 +24,14 @@
     \brief Box-Muller Gaussian random-number generator
 */
 
-#ifndef quantlib_box_muller_gaussian_rng_h
-#define quantlib_box_muller_gaussian_rng_h
+#ifndef QFCL_RANDOM_GENERATOR_QUANTLIB_BOX_MULLER_GAUSSIAN_RNG_HPP
+#define QFCL_RANDOM_GENERATOR_QUANTLIB_BOX_MULLER_GAUSSIAN_RNG_HPP
 
 #include <boost/type_traits/remove_reference.hpp>
 
 #include <ql/methods/montecarlo/sample.hpp>
 
+namespace qfcl {
 namespace QuantLib {
 
     //! Gaussian random number generator
@@ -44,10 +45,10 @@ namespace QuantLib {
             RNG::sample_type RNG::next() const;
         \endcode
     */
-    template <class RNG>
+    template <class RNG, class Real>
     class BoxMullerGaussianRng {
       public:
-        typedef Sample<Real> sample_type;
+        typedef ::QuantLib::Sample<Real> sample_type;
         typedef RNG urng_type;
         explicit BoxMullerGaussianRng(RNG const* uniformGenerator);
         //! returns a sample from a Gaussian distribution
@@ -60,15 +61,15 @@ namespace QuantLib {
         mutable Real weight_;
     };
 
-    template <class RNG>
-    BoxMullerGaussianRng<RNG>::BoxMullerGaussianRng(
+    template <class RNG, class Real>
+    BoxMullerGaussianRng<RNG, Real>::BoxMullerGaussianRng(
                                                 RNG const* uniformGenerator)
     : uniformGenerator_(uniformGenerator), returnFirst_(true),
       weight_(0.0) {}
 
-    template <class RNG>
-    inline typename BoxMullerGaussianRng<RNG>::sample_type
-    BoxMullerGaussianRng<RNG>::next() const {
+    template <class RNG, class Real>
+    inline typename BoxMullerGaussianRng<RNG, Real>::sample_type
+    BoxMullerGaussianRng<RNG, Real>::next() const {
         if (returnFirst_) {
             Real x1,x2,r,ratio;
             do {
@@ -94,7 +95,7 @@ namespace QuantLib {
         }
     }
 
-}
+}}	// namespace qfcl::QuantLib
 
 
-#endif
+#endif	!QFCL_RANDOM_GENERATOR_QUANTLIB_BOX_MULLER_GAUSSIAN_RNG_HPP

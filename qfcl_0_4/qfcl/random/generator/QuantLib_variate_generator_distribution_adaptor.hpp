@@ -1,4 +1,4 @@
-/* qfcl/random/distribution/QuantLib_variate_generator_adaptor.hpp
+/* qfcl/random/distribution/QuantLib_variate_generator_distribution_adaptor.hpp
  *
  * Copyright (C) 2014 James Hirschorn <James.Hirschorn@gmail.com>
  *
@@ -9,11 +9,11 @@
 
 #ifdef USE_QUANTLIB
 
-#ifndef QFCL_RANDOM_DISTRIBUTION_QUANTLIB_VARIATE_GENERATOR_ADAPTOR_HPP
-#define QFCL_RANDOM_DISTRIBUTION_QUANTLIB_VARIATE_GENERATOR_ADAPTOR_HPP
+#ifndef QFCL_RANDOM_DISTRIBUTION_QUANTLIB_VARIATE_GENERATOR_DISTRIBUTION_ADAPTOR_HPP
+#define QFCL_RANDOM_DISTRIBUTION_QUANTLIB_VARIATE_GENERATOR_DISTRIBUTION_ADAPTOR_HPP
 
-/*! \file qfcl/random/distribution/QuantLib_variate_generator_adaptor.hpp
-	\brief Standard distribution to QuantLib variate generator adaptor.
+/*! \file qfcl/random/distribution/QuantLib_variate_generator_distribution_adaptor.hpp
+	\brief Standard distribution to QuantLib variate generator adaptor. 
 
 	Converts a standard distribution into a variate generator usable with QuantLib.
 
@@ -25,26 +25,28 @@
 #include <limits>
 
 //#include <ql/math/randomnumbers/boxmullergaussianrng.hpp>
-#include <qfcl/random/distribution/QuantLib/boxmullergaussianrng.hpp>
+
+#include <ql/methods/montecarlo/sample.hpp>
 
 #include <qfcl/random/distribution/distributions.hpp>
 #include <qfcl/random/distribution/qfcl_distribution_adaptor.hpp>
-#include <qfcl/random/distribution/uniform_0in_1in.hpp>
+//#include <qfcl/random/distribution/uniform_0in_1in.hpp>
+//#include <qfcl/random/generator/QuantLib/boxmullergaussianrng.hpp>
 
 namespace qfcl {
 namespace random {
 //! Version conforming to C++ standards
-namespace standard {
+//namespace standard {
 
 namespace detail {
 
 template<typename Distribution>
-class QuantLib_variate_generator_adaptor_base
+class QuantLib_variate_generator_distribution_adaptor_base
 {
 protected:
 	typedef typename Distribution::result_type result_type;
 public:
-	typedef QuantLib::Sample<result_type> sample_type;
+	typedef ::QuantLib::Sample<result_type> sample_type;
 protected:
 	Distribution _dist;
 };
@@ -57,12 +59,12 @@ protected:
 	this as a FIFO, which overwrites starting with last in when full.
 */
 template<typename Distribution, unsigned long N = 1>
-class QuantLib_variate_generator_adaptor
+class QuantLib_variate_generator_distribution_adaptor
 {
 };
 
 /*! 
-	\class QuantLib_variate_generator_adaptor
+	\class QuantLib_variate_generator_distribution_adaptor
 	\brief Specialization for N = 0.
 
 	N = 0 is a special case, where variates are generated as needed instead of stored. While this 
@@ -70,10 +72,10 @@ class QuantLib_variate_generator_adaptor
 	at a performance cost.
 */
 template<typename Distribution>
-class QuantLib_variate_generator_adaptor<Distribution, 0>
-	: public detail::QuantLib_variate_generator_adaptor_base<Distribution>
+class QuantLib_variate_generator_distribution_adaptor<Distribution, 0>
+	: public detail::QuantLib_variate_generator_distribution_adaptor_base<Distribution>
 {
-	typedef detail::QuantLib_variate_generator_adaptor_base<Distribution> base_type;
+	typedef detail::QuantLib_variate_generator_distribution_adaptor_base<Distribution> base_type;
 public:
 	//! <param>e</param> will be used for further calls to <c>_variate_generator</c>.
 	template<typename Engine>
@@ -92,11 +94,11 @@ private:
 
 //! Specialization for N = 1.
 template<typename Distribution>
-class QuantLib_variate_generator_adaptor<Distribution, 1>
-	: public detail::QuantLib_variate_generator_adaptor_base<Distribution>
+class QuantLib_variate_generator_distribution_adaptor<Distribution, 1>
+	: public detail::QuantLib_variate_generator_distribution_adaptor_base<Distribution>
 {
 public:
-	void operator=(QuantLib_variate_generator_adaptor<Distribution, 1> const & other)
+	void operator=(QuantLib_variate_generator_distribution_adaptor<Distribution, 1> const & other)
 	{
 		_dist = other._dist;
 		_next = other._next;
@@ -117,22 +119,22 @@ private:
 };
 
 /*! 
-	\class QuantLib_variate_generator_adaptor
+	\class QuantLib_variate_generator_distribution_adaptor
 	\brief Specialization for N = 2.
 
 	This is an optimized version that uses the stack instead of the heap for speed efficiency.
 */
 template<typename Distribution>
-class QuantLib_variate_generator_adaptor<Distribution, 2>
-	: public detail::QuantLib_variate_generator_adaptor_base<Distribution>
+class QuantLib_variate_generator_distribution_adaptor<Distribution, 2>
+	: public detail::QuantLib_variate_generator_distribution_adaptor_base<Distribution>
 {
 public:
-	QuantLib_variate_generator_adaptor()
+	QuantLib_variate_generator_distribution_adaptor()
 		: _front(0), _n(0)
 	{
 	}
 
-	void operator=(QuantLib_variate_generator_adaptor<Distribution, 2> const & other)
+	void operator=(QuantLib_variate_generator_distribution_adaptor<Distribution, 2> const & other)
 	{
 		_dist = other._dist;
 		_stack0 = other._stack0;
@@ -179,7 +181,8 @@ private:
 	mutable int _n;
 };
 
-}}}	// namespace qfcl::random::standard
-#endif	!QFCL_RANDOM_DISTRIBUTION_QUANTLIB_VARIATE_GENERATOR_ADAPTOR_HPP
+//}	namespace standard
+}}	// namespace qfcl::random
+#endif	!QFCL_RANDOM_DISTRIBUTION_QUANTLIB_VARIATE_GENERATOR_DISTRIBUTION_ADAPTOR_HPP
 
 #endif	USE_QUANTLIB

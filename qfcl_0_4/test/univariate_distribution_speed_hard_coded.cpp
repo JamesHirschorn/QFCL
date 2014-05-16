@@ -43,6 +43,11 @@ namespace mpl = boost::mpl;
 
 #include "utility/cpu_timer.hpp"
 
+/** Select which generators to test. */
+#define UNIFORM_0IN_1EX
+//#define UNIFORM_0IN_1IN
+//#define NORMAL_BOX_MULLER_POLAR
+
 // which TSC to use
 
 #ifdef QFCL_RDTSCP
@@ -75,9 +80,9 @@ int main(int argc, char * argv[])
 	typedef unsigned long long CounterType;
 	//typedef unsigned long CounterType;
 
-	CounterType iterations = 10;
+	CounterType iterations = 100000000;
 
-	bool show_values = true;
+	bool show_values = false;
 
 	typedef mt19937 Engine;
 	//typedef boost::random::mt19937 Engine;
@@ -92,7 +97,38 @@ int main(int argc, char * argv[])
 
 	cout << qfcl::io::custom_formatted(iterations) << " iterations per engine:" << endl << endl;
 
-	// normal_box_muller
+#ifdef UNIFORM_0IN_1EX
+	{
+		typedef uniform_0in_1ex<> Distribution;
+		Engine e;
+		Distribution d;
+	
+		volatile Distribution::result_type value;
+												
+		timer_t timer;								
+												
+		uint64_t start = timer();					
+												
+		for (CounterType i = 0; i < iterations; ++i)		
+		{											
+			value = d(e);		
+			if (show_values)
+			{
+				cout << boost::format("Random number %|1$3|: %|2$20.10|.\n") % i % value; 
+			}
+		}											
+												
+		uint64_t end = timer();						
+												
+		uint64_t result = end - start;	
+
+		show_timing_results(
+			result, iterations, 
+			qfcl::names::name_or_typename(d), qfcl::names::name(Distribution::method()), 
+			cpu_frequency);
+	}
+#endif
+#ifdef NORMAL_BOX_MULLER
 	{
 		typedef normal_box_muller<> Distribution;
 		Engine e;
@@ -119,10 +155,11 @@ int main(int argc, char * argv[])
 
 		show_timing_results(
 			result, iterations, 
-			qfcl::names::name_or_typename(d), qfcl::names::name_or_typename(Distribution::method), 
+			qfcl::names::name_or_typename(d), qfcl::names::name(Distribution::method()), 
 			cpu_frequency);
 	}
-	// normal_box_muller_polar
+#endif 
+#ifdef NORMAL_BOX_MULLER_POLAR
 	{
 		typedef normal_box_muller_polar<> Distribution;
 		Engine e;
@@ -149,10 +186,11 @@ int main(int argc, char * argv[])
 
 		show_timing_results(
 			result, iterations, 
-			qfcl::names::name_or_typename(d), qfcl::names::name_or_typename(Distribution::method), 
+			qfcl::names::name_or_typename(d), qfcl::names::name(Distribution::method()), 
 			cpu_frequency);
 	}	
-	// QuantLib_normal_box_muller
+#endif
+#ifdef QUANTLIB_NORMAL_BOX_MULLER
 	{
 		typedef  QuantLib_normal_box_muller_polar<> Distribution;
 		Engine e;
@@ -179,9 +217,10 @@ int main(int argc, char * argv[])
 
 		show_timing_results(
 			result, iterations, 
-			qfcl::names::name_or_typename(d), qfcl::names::name_or_typename(Distribution::method), 
+			qfcl::names::name_or_typename(d), qfcl::names::name(Distribution::method()), 
 			cpu_frequency);
 	}
+#endif
 
 	cout << "Press Enter to exit.";
 

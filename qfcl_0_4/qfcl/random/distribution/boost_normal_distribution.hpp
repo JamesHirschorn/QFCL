@@ -33,25 +33,23 @@
 #include <qfcl/utility/names.hpp>
 
 namespace qfcl {
-
 namespace random {
 
 template<typename Real = double>
 class boost_normal_distribution 
 	: public named_adapter<
-		qfcl_distribution_adaptor<boost::normal_distribution<Real>>,
-		tmp::concatenate<
-			string::boost_prefix, 
-			string::normal_box_muller_name,
-			typename qfcl::names::template_typename<Real>::type>>  
+		  qfcl_distribution_adaptor<
+			  boost::normal_distribution<Real>
+			, variate_method<BOX_MULLER_BASIC>
+			>
+	    , tmp::concatenate<
+			  string::boost_prefix 
+			, string::normal_box_muller_name
+			,  typename qfcl::names::template_typename<Real>::type
+			>
+		>  
 {
-public:
-	// don't know why this should be needed (compiler bug?)
-	static const variate_method method;
 };
-
-template<typename Real>
-const variate_method boost_normal_distribution<Real>::method = BOX_MULLER_BASIC;
 
 }}	// namespace qfcl::random
 

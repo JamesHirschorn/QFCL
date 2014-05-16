@@ -1,4 +1,4 @@
-/* test/univariate_distribution_speed.cpp
+/* test/univariate_generator_speed.cpp
  *
  * Copyright (C) 2014 James Hirschorn <James.Hirschorn@gmail.com>
  *
@@ -7,8 +7,8 @@
  * (See accompanying file LICENSE.txt)
  */
 
-/*! \file test/univariate_distribution_speed.cpp
-	\brief univariate distribution speed test
+/*! \file test/univariate_generator_speed.cpp
+	\brief univariate generator speed test
 
 	\author James Hirschorn
 	\date February 7, 2014
@@ -34,7 +34,10 @@ namespace po = boost::program_options;
 #include <boost/tokenizer.hpp>
 
 #include <qfcl/defines.hpp>
+#include <qfcl/random/distribution/uniform_0in_1ex.hpp>
+#include <qfcl/random/distribution/normal_box_muller_polar.hpp>
 #include <qfcl/random/engine/mersenne_twister.hpp>
+#include <qfcl/random/generator/variate_generator.hpp>
 #include <qfcl/utility/comma_separated_number.hpp>
 #include <qfcl/utility/names.hpp>
 #include <qfcl/utility/tmp.hpp>
@@ -42,12 +45,46 @@ namespace po = boost::program_options;
 
 #include "utility/cpu_timer.hpp"
 
-#include "distribution_common.hpp"
-
 using namespace std;
 
 // PRNG engine
 typedef qfcl::random::mt19937 Engine;
+
+//! list of continuous uniform generators
+typedef qfcl::named_adapter< 
+		mpl::vector<
+				qfcl::random::variate_generator<Engine, qfcl::random::uniform_0in_1ex<>>
+			>
+	,	qfcl::tmp::concatenate<
+				qfcl::string::prefix<qfcl::string::uniform_string, '_'>::type
+			,	qfcl::string::continuous_string
+			>
+	>
+uniform_continuous_generators;
+
+//! list of normal univariate generators
+typedef qfcl::named_adapter<
+		mpl::vector<
+				qfcl::random::variate_generator<Engine, qfcl::random::normal_box_muller_polar<>>
+#ifdef USE_QUANTLIB
+//			,	qfcl::random::QuantLib_normal_box_muller_polar<>
+#endif USE_QUANTLIB
+			>
+	,	qfcl::string::normal_string
+	>
+normal_generators;
+
+//! list of all families of generators
+typedef mpl::vector<uniform_continuous_generators, normal_generators> generator_families;
+
+//! List of all generators
+// NOTE: This should be the union of generator_families.
+typedef qfcl::tmp::concatenate<
+		uniform_continuous_generators
+	,	normal_generators
+	>::type
+generator_list;
+
 // default timer
 #define QFCL_TIMER rdtsc_variate_timer
 // default number of iterations per engine
@@ -56,9 +93,9 @@ typedef qfcl::random::mt19937 Engine;
 const size_t indent_width = 5;
 const size_t precision = 12;
 
-// If you want to include speed tests for engines not satisfying the Named concept
+// If you want to include speed tests for variate generators not satisfying the Named concept
 // (e.g. the boost::random engines)
-#define INCLUDE_UNNAMED
+//#define INCLUDE_UNNAMED
 
 /** timers */
 
@@ -73,22 +110,17 @@ typedef qfcl::timer::rdtsc_timer timer_type;
 // output results
 
 template<typename CounterType>
-void show_timing_results(uint64_t clock_cycles, CounterType iterations, const string & distribution_name, const string & variate_method, double cpu_freq)
+void show_timing_results(uint64_t clock_cycles, CounterType iterations, const string & generator_name, const string & variate_method, double cpu_freq)
 {
 	// time taken in seconds
 	double time_taken = clock_cycles / cpu_freq;
 
-	string format = variate_method.size() > 0
-		? "%1%.\nMethod: %5%\n%|2$18.2f| random numbers/second = %|3$13.8f| nanoseconds/random number = %|4$6.1f| CPU cycles/random number\n"
-		: "%1%.\n%|2$18.2f| random numbers/second = %|3$13.8f| nanoseconds/random number = %|4$6.1f| CPU cycles/random number\n%5%";
-
 	std::cout 
-		<< boost::format(format)
-			% distribution_name
+		<< boost::format("%1%.\nMethod: %2%\n%|3$18.2f| random numbers/second = %|4$13.8f| nanoseconds/random number = %|5$6.1f| CPU cycles/random number\n")
+			% generator_name % variate_method
 			% ( iterations / time_taken ) 
 			% ( time_taken * UINT64_C(1000000000) / iterations ) 
-			% ( double(clock_cycles) / iterations)
-			% variate_method;
+			% ( double(clock_cycles) / iterations);
 }
 
 template<typename CounterType>
@@ -105,36 +137,34 @@ void show_timing_results(boost::timer::cpu_times t, CounterType iterations, cons
 template<typename CounterType, typename Timer>
 struct timer_object
 {
-	timer_object(Engine & e, CounterType iter, int num_variates_disp, double freq) 
-		: engine(e), iterations(iter), num_variates_displayed(num_variates_disp), 
+	timer_object(CounterType iter, int num_variates_disp, double freq) 
+		: iterations(iter), num_variates_displayed(num_variates_disp), 
 		  cpu_frequency(freq) {} 
 
-	template<typename Distribution>
-	void operator()(Distribution & dist) 
+	template<typename Generator>
+	void operator()(Generator & gen) 
 	{
 		Timer t;
-		auto result = t(dist, engine, iterations);
+		auto result = t(gen, iterations);
 
-#ifdef INCLUDE_UNNAMED
-		show_timing_results(result, iterations, qfcl::names::name_or_typename(dist), string(), cpu_frequency);
-#else
-		show_timing_results(result, iterations_, qfcl::names::name(dist), qfcl::names::name(Distribution::method()), cpu_frequency);
-#endif // INCLUDE_UNNAMED
+//#ifdef INCLUDE_UNNAMED
+		show_timing_results(result, iterations, qfcl::names::name_or_typename(gen), string(), cpu_frequency);
+//#else
+//		show_timing_results(result, iterations_, qfcl::names::name(dist), dist.method.name(), cpu_frequency);
+//#endif // INCLUDE_UNNAMED
 		
 		// diagnostics: show the next num_variate_displayed variates
 		const string out_line = "Random number %1%: %|2$." 
 			+ boost::lexical_cast<string>(precision) + "f|\n";
 		// use copies to preserve state
-		Distribution d = dist;
-		Engine e = engine;
+		Generator g = gen;
 		for (int i = 0; i < num_variates_displayed; ++i)
 			std::cout 
-				<< boost::format(out_line) % (iterations + i + 1) % d(e);
+				<< boost::format(out_line) % (iterations + i + 1) % g();
 
 		std::cout << std::endl;
 	}
 
-	Engine & engine;
 	CounterType iterations;
 	int num_variates_displayed;
 	double cpu_frequency;
@@ -145,14 +175,13 @@ struct rdtsc_variate_timer
 {
 	typedef uint64_t result_type;
 
-	template<typename Distribution, typename CounterType>
-	result_type operator()(Distribution & d_, Engine & e_, CounterType iterations) const
+	template<typename Generator, typename CounterType>
+	result_type operator()(Generator & gen_, CounterType iterations) const
 	{
 		// don't want to slow down by using a reference
-		Engine e = e_;
-		Distribution d = d_;
+		Generator gen = gen_;
 	
-		volatile typename Distribution::result_type value;
+		volatile typename Generator::result_type value;
 												
 		timer_type timer;								
 												
@@ -160,7 +189,7 @@ struct rdtsc_variate_timer
 												
 		for (CounterType i = 0; i < iterations; ++i)		
 		{											
-			value = d(e);							
+			value = gen();							
 		}											
 												
 		uint64_t end = timer();						
@@ -183,29 +212,29 @@ struct rdtsc_variate_timer
 typedef mpl::vector<rdtsc_variate_timer> timer_list;
 
 // We want to avoid double type-selection for now, so we use the following "kludge".
-template<typename DistributionList, typename CounterType, typename SelectionMethod>
+template<typename GeneratorList, typename CounterType, typename SelectionMethod>
 void perform_speed_test(
-	const vector<string> & distributions_selected, 
-	const string & timer_name, Engine & e, CounterType iterations, int num_variates_disp,
+	const vector<string> & generators_selected, 
+	const string & timer_name, CounterType iterations, int num_variates_disp,
 	double cpu_freq)
 {
 	if (timer_name == mpl::c_str<rdtsc_variate_timer::name>::value)
 	{
-        qfcl::type_selection::for_each_selector<DistributionList, SelectionMethod>(
-			distributions_selected,
-			timer_object<CounterType, rdtsc_variate_timer>(e, iterations, num_variates_disp, cpu_freq)
+        qfcl::type_selection::for_each_selector<GeneratorList, SelectionMethod>(
+			generators_selected,
+			timer_object<CounterType, rdtsc_variate_timer>(iterations, num_variates_disp, cpu_freq)
 		);
 	}
 	//else if (timer_name == "boost")
  //       qfcl::type_selection::for_each_selector<DistributionList, SelectionMethod>(
-	//		distributions_selected, 
+	//		generators_selected, 
 	//		timer_object<CounterType, boost_timer>(e, iterations, cpu_freq)
 	//	);
 	else
         throw std::logic_error("bad program");
 }
 
-// Tests a family of distributions.
+// Tests a family of generators.
 struct test_family_object
 {
 	test_family_object(vector<string>& dist_names)
@@ -259,23 +288,23 @@ int main(int argc, char * argv[])
 		("help,h", "this help message")
 		("version,v", "version info");
 	
-	string distributions;
+	string generators;
 	string family;
 	string timer_param;
 
 	int num_displayed_variates;
 
-	po::options_description distribution_options("Distribution options");
-	distribution_options.add_options()
-		("distributions,d", 
-		 po::value<string>(&distributions),
-		 "specifies a single or comma separated list of distribution(s) to be tested. " \
-		 "All distributions are tested if neither this option " \
+	po::options_description generator_options("Generator options");
+	generator_options.add_options()
+		("generators,g", 
+		 po::value<string>(&generators),
+		 "specifies a single or comma separated list of generator(s) to be tested. " \
+		 "All generators are tested if neither this option " \
 		 "nor the -f option is specified.\n" \
-		 "-d l [ --distributions list ] for a list of all available distributions.")
+		 "-g l [ --generators list ] for a list of all available generators.")
 		("family,f",
 		 po::value<string>(&family),
-		 "specifies a family of distributions to test.\n" \
+		 "specifies a family of generators to test.\n" \
 		 "-f l [ --family list ] for a list of all available families.");
 
 	po::options_description timer_options("Timer options");
@@ -292,10 +321,10 @@ int main(int argc, char * argv[])
 	po::options_description primary_options("Alternatives to positional command line parameters");
 	primary_options.add_options()
 		("iterations,i", po::value<CounterType>(&iterations) -> default_value(QFCL_ITERATIONS),
-		 "number of random numbers to generate for each distribution");
+		 "number of random numbers to generate for each generator");
 
 	po::options_description command_line_options;
-	command_line_options.add(generic_options).add(distribution_options).add(timer_options).add(diagnostic_options).add(primary_options);
+	command_line_options.add(generic_options).add(generator_options).add(timer_options).add(diagnostic_options).add(primary_options);
 
 	po::positional_options_description pd;
 	pd.add("iterations", 1);
@@ -315,16 +344,15 @@ int main(int argc, char * argv[])
 	if (argc == 1 || vm.count("help")) 
 	{
 		cout << argv[0] << " measures the speed of pseudo-random number generation\n" \
-			 << "of various univariate distributions." << endl << endl;
+			 << "of various univariate generators." << endl << endl;
 		cout << "Usage: " << argv[0] << " [options] [iterations]" << endl
 			 << "   OR  " << argv[0] << " [options]" << endl << endl;
-		cout << "Examples: " << argv[0] 
+		cout << "Examples: " << argv[0] << " -f normal -i 10000000" << endl;
+		cout << "          " << argv[0] 
 			 << " -d normal_Box-Muller{double}{uniform_0in_1ex{double}},boost-normal_Box-Muller{double} 1000000000" 
-			 << endl;
-		cout << "          " << argv[0] << " -f normal -i 10000000" 
 			 << endl << endl;
 		cout << generic_options << endl;
-		cout << distribution_options << endl;
+		cout << generator_options << endl;
 		cout << timer_options << endl;
 		cout << diagnostic_options << endl;
 		cout << primary_options << endl;
@@ -332,28 +360,28 @@ int main(int argc, char * argv[])
 			return EXIT_SUCCESS;
 	}
 
-	vector<string> distributions_selected; 
-	typedef all_distributions distribution_list;
-	auto distribution_names = qfcl::names::get_name_or_typenames<distribution_list>(); 
-	auto family_names = qfcl::names::get_name_or_typenames<distribution_families>();
+	vector<string> generators_selected; 
+	//typedef all_generators generator_list;
+	auto generator_names = qfcl::names::get_name_or_typenames<generator_list>(); 
+	auto family_names = qfcl::names::get_name_or_typenames<generator_families>();
 		
-	if (vm.count("distributions"))
+	if (vm.count("generators"))
 	{
-		string distributions_param = vm["distributions"].as<string>();
+		string generators_param = vm["generators"].as<string>();
 
 		// parse the comma separated list
 		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 		boost::char_separator<char> sep(",");
-		tokenizer tk(distributions_param, sep);
+		tokenizer tk(generators_param, sep);
 		for (string dist : tk)
-			distributions_selected.push_back(dist);
+			generators_selected.push_back(dist);
 
 		// list of engines
-		if (distributions_selected.size() == 1 && (distributions_selected[0] == "list" || distributions_selected[0] == "l"))
+		if (generators_selected.size() == 1 && (generators_selected[0] == "list" || generators_selected[0] == "l"))
 		{
 			std::ostringstream oss;
 
-			BOOST_FOREACH(string s, distribution_names)
+			BOOST_FOREACH(string s, generator_names)
 			{
 				oss << std::setw(indent_width) << "" << s << std::endl;
 			}
@@ -380,13 +408,13 @@ int main(int argc, char * argv[])
 			return EXIT_SUCCESS;
 		}
 
-		qfcl::type_selection::for_each_selector<distribution_families>(
+		qfcl::type_selection::for_each_selector<generator_families>(
 			family,
-			test_family_object(distributions_selected));
+			test_family_object(generators_selected));
 	}
 	else // all engines
 	{
-		distributions_selected = distribution_names;
+		generators_selected = generator_names;
 	}
 
 	auto timer_names = qfcl::names::get_names<timer_list>();
@@ -426,10 +454,11 @@ int main(int argc, char * argv[])
 
 	Engine e;
 #ifdef INCLUDE_UNNAMED
-	perform_speed_test<distribution_list, CounterType, NAME_OR_TYPENAME>(distributions_selected, timer_param, e, iterations, 
+	perform_speed_test<generator_list, CounterType, NAME_OR_TYPENAME>(generators_selected, timer_param, iterations, 
 		num_displayed_variates, cpu_frequency);
 #else
-	perform_speed_test<distribution_list, CounterType, NAME>(distributions_selected, timer_param, e, iterations, cpu_frequency);
+	perform_speed_test<generator_list, CounterType, NAME>(generators_selected, timer_param, iterations, 
+		num_displayed_variates, cpu_frequency);
 #endif // INCLUDE_UNNAMED
 
 	cout << "Press Enter to exit.";

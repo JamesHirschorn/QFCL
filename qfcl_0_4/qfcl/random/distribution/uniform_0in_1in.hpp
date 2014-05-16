@@ -19,9 +19,10 @@
 */
 
 #include <qfcl/miscellaneous/strings.hpp>
-#include <qfcl/random/variate_generator.hpp>
 #include <qfcl/random/distribution/qfcl_distribution_adaptor.hpp>
 #include <qfcl/random/distribution/distributions.hpp>
+#include <qfcl/random/generator/variate_generator.hpp>
+#include <qfcl/random/generator/qfcl_variate_generator_adaptor.hpp>
 #include <qfcl/utility/tmp.hpp>
 #include <qfcl/utility/named_adapter.hpp>
 #include <qfcl/utility/names.hpp>
@@ -39,18 +40,24 @@ public:
 	template<typename Engine>
 	result_type operator()(Engine & e)
 	{
-        _factor = 1 / result_type( (e.max)() - (e.min)() );
-		return ( e() - (e.min)() ) * _factor;
+		// why is static slower?
+		//static const result_type _factor = 1 / result_type( Engine::max() - Engine::min() ); 
+		//const result_type _factor = 1 / result_type( Engine::max() - Engine::min() ); 
+		_factor = 1 / result_type( Engine::max() - Engine::min() ); 
+		return ( e() - Engine::min() ) * _factor; 
 	}
 private:
-    result_type         _factor;
+	result_type _factor; 
 };
+
 }	// namespace standard
 
 template<typename RealType = double>
 class uniform_0in_1in
 	: public named_adapter<
-		  qfcl_distribution_adaptor<qfcl::random::standard::uniform_0in_1in<RealType>>
+		  qfcl_distribution_adaptor<
+			  qfcl::random::standard::uniform_0in_1in<RealType>
+			, variate_method<QUANTILE>>
 		, tmp::concatenate<
 			  string::prefix<string::uniform_string, '_'>::type
 			, string::prefix<tmp::concatenate<string::number<0>::type, string::in_string>::type, '_'>::type
@@ -58,38 +65,72 @@ class uniform_0in_1in
 			, string::in_string
 			, typename qfcl::names::template_typename<RealType>::type>>
 {
-public:
-	uniform_0in_1in() {}
-
-	static const variate_method method; 
 };
 
-template<typename RealType>
-const variate_method uniform_0in_1in<RealType>::method = QUANTILE;
+//template<typename RealType>
+//const variate_method uniform_0in_1in<RealType>::method = QUANTILE;
 
 // improved efficiently
+namespace standard {
 template<class Engine, class RealType >
-class variate_generator<Engine, standard::uniform_0in_1in<RealType> >
+class variate_generator<Engine, uniform_0in_1in<RealType> >
 {
 public:
     typedef Engine                      engine_type;
     typedef standard::uniform_0in_1in<RealType>   distribution_type;
     typedef RealType                    result_type;
 
-    // constructor
-    // if, min==1, max==3 then  [ 0/2, 1/2, 2/2 ]
-    variate_generator(engine_type e, distribution_type d) : _eng(e), _dist(d)
+	//! constructor
+    variate_generator(engine_type e = engine_type(), distribution_type d = distribution_type()) 
+		: _eng(e)//, _dist(d)
     {
-        _factor = result_type( (_eng.max)() - (_eng.min)() );
-        _factor = 1/_factor;
+		initialize();
     }
     result_type operator()() 
-    { return result_type( _eng() - (_eng.min)() ) * _factor; }
+    { 
+		return ( _eng() - engine_type::min() ) * _factor; 
+	}
 
 private:
     engine_type         _eng;
-    distribution_type   _dist;
-    result_type         _factor;
+//    distribution_type   _dist;
+    static result_type  _factor;
+	static bool			_initialized;
+
+    // if, min==1, max==3 then  [ 0/2, 1/2, 2/2 ]
+	static void initialize()
+	{
+		if (_initialized)
+			return;
+
+		_factor = 1 / result_type( engine_type::max() - engine_type::min() );
+	}
+};
+
+template<class Engine, class RealType >
+RealType variate_generator<Engine, uniform_0in_1in<RealType> >::_factor;
+
+template<class Engine, class RealType >
+bool variate_generator<Engine, uniform_0in_1in<RealType> >::_initialized = false;
+}	// namespace standard
+
+template<typename Engine, typename RealType>
+class variate_generator<Engine, uniform_0in_1in<RealType> >
+	: public qfcl_variate_generator_adaptor<
+			standard::variate_generator<Engine, standard::uniform_0in_1in<RealType> >
+		,	Engine
+		,	uniform_0in_1in<RealType>
+		>
+{
+	typedef qfcl_variate_generator_adaptor<
+			standard::variate_generator<Engine, standard::uniform_0in_1in<RealType> >
+		,	Engine
+		,	uniform_0in_1in<RealType>
+		> base_type;
+public:
+	variate_generator(Engine const& e, uniform_0in_1in<RealType> const& d = uniform_0in_1in<RealType>())
+		: base_type(e, d)
+	{}
 };
 
 }}	// namespace qfcl::random

@@ -64,23 +64,18 @@ class boost_normal_quantile
 template<typename RealType = double, typename U01_Dist = uniform_0ex_1ex<RealType>>
 class boost_normal_quantile 
 	: public named_adapter<
-				  qfcl_distribution_adaptor<standard::boost_normal_quantile<RealType, U01_Dist>>
-				, typename
-				  tmp::concatenate<
-					  string::boost_prefix
-					, string::normal_quantile_name
-					, typename names::template_typename<RealType>::type
-					, typename names::template_typename<U01_Dist>::type
-					>::type
-				>
+			qfcl_distribution_adaptor<standard::boost_normal_quantile<RealType, U01_Dist>
+		  , variate_method<QUANTILE>
+		  >
+		, typename tmp::concatenate<
+			string::boost_prefix
+		  , string::normal_quantile_name
+		  , typename names::template_typename<RealType>::type
+		  , typename names::template_typename<U01_Dist>::type
+		  >::type
+		>
 {
-public:
-	// needed because of bug in MSVC compiler, or because of complex rule?
-	static const variate_method method; 
 };
-
-template<typename RealType, typename U01_Dist>
-const variate_method boost_normal_quantile<RealType, U01_Dist>::method = QUANTILE;
 
 }}	// namespace qfcl::random
 #endif	!QFCL_RANDOM_DISTRIBUTION_BOOST_NORMAL_QUANTILE_HPP

@@ -74,30 +74,17 @@ private:
 template<typename RealType = double, typename U01_Dist = uniform_0in_1ex<RealType>>
 class normal_box_muller 
 	: public named_adapter<
-		  qfcl_distribution_adaptor<standard::normal_box_muller<RealType, U01_Dist>>
-		, typename
-		  qfcl::tmp::concatenate<
-			  string::normal_box_muller_name 
-			, typename qfcl::names::template_typename<RealType>::type
-			, typename names::template_typename<U01_Dist>::type
-			>::type
+			qfcl_distribution_adaptor<standard::normal_box_muller<RealType, U01_Dist>
+		  , variate_method<BOX_MULLER_BASIC>
+		  >
+		, typename qfcl::tmp::concatenate<
+			string::normal_box_muller_name 
+		  , typename names::template_typename<RealType>::type
+		  , typename names::template_typename<U01_Dist>::type
+		  >::type
 		>					
 {
-	typedef qfcl_distribution_adaptor<standard::normal_box_muller<RealType>>
-		base_type;
-public:
-	static const variate_method method; 
 };
-//template<typename RealType = double>
-//struct normal_box_muller : qfcl_distribution_adaptor<test_class> //standard::normal_box_muller<RealType>>
-//{
-//};
-
-template<typename RealType, typename U01_Dist>
-//const variate_method qfcl_distribution_adaptor<RealType, double>::method = BOX_MULLER;
-//const variate_method qfcl_distribution_adaptor<standard::normal_box_muller<RealType>, standard::normal_box_muller<RealType>::result_type>::method = BOX_MULLER;
-//const variate_method normal_box_muller<RealType>::base_type::method = BOX_MULLER;
-const variate_method normal_box_muller<RealType, U01_Dist>::method = BOX_MULLER_BASIC;
 
 }}	// namespace qfcl::random
 #endif	!QFCL_RANDOM_DISTRIBUTION_NORMAL_BOX_MULLER_HPP

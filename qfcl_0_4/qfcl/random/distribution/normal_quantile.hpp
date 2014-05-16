@@ -53,14 +53,12 @@ private:
 
 template<typename Quantile, typename RealType, typename U01_Dist>
 class normal_quantile 
-	: public qfcl_distribution_adaptor<standard::normal_quantile<typename Quantile, typename RealType, typename U01_Dist>>
+	: public qfcl_distribution_adaptor<
+		  standard::normal_quantile<typename Quantile, typename RealType, typename U01_Dist>
+		, variate_method<QUANTILE>
+		>
 {
-public:
-	static const variate_method method; 
 };
-
-template<typename Quantile, typename RealType, typename U01_Dist>
-const variate_method normal_quantile<Quantile, RealType, U01_Dist>::method = QUANTILE;
 
 }}	// namespace qfcl::random
 #endif	!QFCL_RANDOM_DISTRIBUTION_NORMAL_QUANTILE_HPP

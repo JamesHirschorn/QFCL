@@ -22,6 +22,7 @@
 #include <qfcl/random/distribution/distributions.hpp>
 #include <qfcl/random/distribution/qfcl_distribution_adaptor.hpp>
 #include <qfcl/random/distribution/uniform_0in_1in.hpp>
+#include <qfcl/random/generator/qfcl_variate_generator_adaptor.hpp>
 #include <qfcl/utility/named_adapter.hpp>
 #include <qfcl/utility/names.hpp>
 
@@ -76,23 +77,71 @@ private:
 template<typename RealType = double, typename U01_Dist = uniform_0in_1in<RealType>>
 class normal_box_muller_polar 
 	: public named_adapter<
-				  qfcl_distribution_adaptor<standard::normal_box_muller_polar<RealType, U01_Dist>>
-				,   typename
-					qfcl::tmp::concatenate<
-					  string::normal_box_muller_polar_name 
-					, typename qfcl::names::template_typename<RealType>::type
-					, typename names::template_typename<U01_Dist>::type
-					>::type
-				>
+			qfcl_distribution_adaptor<
+				standard::normal_box_muller_polar<RealType, U01_Dist>
+			,	variate_method<BOX_MULLER_POLAR>
+			>
+		,   typename qfcl::tmp::concatenate<
+				string::normal_box_muller_polar_name 
+			,	typename qfcl::names::template_typename<RealType>::type
+			,	typename names::template_typename<U01_Dist>::type
+			>::type
+		>
 {
-	typedef qfcl_distribution_adaptor<standard::normal_box_muller_polar<RealType>>
-		base_type;
-public:
-	static const variate_method method; 
 };
 
-template<typename RealType, typename U01_Dist>
-const variate_method normal_box_muller_polar<RealType, U01_Dist>::method = BOX_MULLER_POLAR;
+/** variate generator */
+
+namespace standard {
+template<typename Engine, typename RealType, typename U01_Dist>
+class variate_generator<Engine, normal_box_muller_polar<RealType, U01_Dist>>
+{
+public:
+	typedef Engine											engine_type;
+	typedef normal_box_muller_polar<RealType, U01_Dist>		distribution_type;
+	typedef RealType										result_type;
+
+	//! ctor
+	variate_generator(engine_type const& e, distribution_type const& d)
+		: //_uniform_generator(e), 
+		  _e(e), _d(d)
+	{}
+
+	RealType operator()()
+	{
+		return _d(_e);
+	}
+private:
+    typedef U01_Dist uniform_distribution_type;
+    typedef variate_generator<engine_type, uniform_distribution_type> uniform_variate_generator_type;
+
+	//uniform_variate_generator_type	_uniform_generator;
+    uniform_distribution_type	_uniform_distribution;
+	engine_type					_e;
+	distribution_type			_d;
+};
+}	// namespace standard
+
+template<typename Engine, typename RealType, typename U01_Dist>
+class variate_generator<Engine, normal_box_muller_polar<RealType, U01_Dist>>
+	: public qfcl_variate_generator_adaptor<
+			standard::variate_generator<Engine, standard::normal_box_muller_polar<RealType, U01_Dist>>
+		,	Engine
+		,	normal_box_muller_polar<RealType, U01_Dist>
+		>
+{
+	typedef qfcl_variate_generator_adaptor<
+			standard::variate_generator<Engine, standard::normal_box_muller_polar<RealType, U01_Dist>>
+		,	Engine
+		,	normal_box_muller_polar<RealType, U01_Dist>
+		> base_type;
+public:
+	variate_generator(
+		Engine const& e = Engine(), 
+		normal_box_muller_polar<RealType, U01_Dist> const& d = normal_box_muller_polar<RealType, U01_Dist>())
+		: base_type(e, d)
+	{}
+};
 
 }} // namespace::qfcl::random
 #endif	!QFCL_RANDOM_DISTRIBUTION_NORMAL_BOX_MULLER_POLAR_HPP

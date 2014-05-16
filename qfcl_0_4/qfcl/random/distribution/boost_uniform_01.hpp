@@ -35,27 +35,20 @@ namespace random {
 template<typename RealType = double>
 struct boost_uniform_01 
 	: named_adapter<
-		  qfcl_distribution_adaptor<boost::uniform_01<RealType>>	
-		, typename
-		  tmp::concatenate<
-			  string::boost_prefix 
-			, string::prefix<string::uniform_string, '_'>::type
-			, string::number<0>::type
-			, string::number<1>::type
-			, typename names::template_typename<RealType>::type
-			>::type
+		  qfcl_distribution_adaptor<
+		    boost::uniform_01<RealType>
+		  , variate_method<QUANTILE>
+		  >	
+		, typename tmp::concatenate<
+			string::boost_prefix 
+		  , string::prefix<string::uniform_string, '_'>::type
+		  , string::number<0>::type
+		  , string::number<1>::type
+		  , typename names::template_typename<RealType>::type
+		  >::type
 		>
 {
-	// shouldn't need this, but MSVC compiler seems to be broken
-	static const variate_method method;
-private:
-	typedef qfcl_distribution_adaptor<boost::uniform_01<RealType>> base_type;
 };
-
-template<typename RealType>
-const variate_method boost_uniform_01<RealType>::method = QUANTILE;
-//const variate_method boost_uniform_01<RealType>::base_type::method = QUANTILE;
-//const variate_method qfcl_distribution_adaptor<boost::uniform_01<RealType, double>>::method = QUANTILE;
 
 }}	// namespace qfcl::random
 

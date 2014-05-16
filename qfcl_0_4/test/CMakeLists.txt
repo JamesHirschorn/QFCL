@@ -140,6 +140,24 @@ set_target_properties( UnivariateDistributionSpeedHardCoded PROPERTIES
 					   OUTPUT_NAME univariate_distribution_speed_hard_coded )
 target_link_libraries( UnivariateDistributionSpeedHardCoded QFCL NTL ${Boost_LIBRARIES} ${QuantLib_LIBRARIES} ) 
 
+set( source_files univariate_generator_speed.cpp utility/cpu_timer.hpp )
+add_executable( UnivariateGeneratorSpeed ${source_files} )
+source_group( "Source Files" FILES ${source_files} )
+set_target_properties( UnivariateGeneratorSpeed PROPERTIES
+					   FOLDER test/QFCLPerformanceTests
+					   COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINITIONS}"
+					   OUTPUT_NAME univariate_generator_speed )
+target_link_libraries( UnivariateGeneratorSpeed QFCL NTL ${Boost_LIBRARIES} ${QuantLib_LIBRARIES} ) 
+
+set( source_files univariate_generator_speed_hard_coded.cpp utility/cpu_timer.hpp )
+add_executable( UnivariateGeneratorSpeedHardCoded ${source_files} )
+source_group( "Source Files" FILES ${source_files} )
+set_target_properties( UnivariateGeneratorSpeedHardCoded PROPERTIES
+					   FOLDER test/QFCLPerformanceTests
+					   COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINITIONS}"
+					   OUTPUT_NAME univariate_generator_speed_hard_coded )
+target_link_libraries( UnivariateGeneratorSpeedHardCoded QFCL NTL ${Boost_LIBRARIES} ${QuantLib_LIBRARIES} ) 
+
 set( source_files engine_profiler.cpp engine_common.ipp utility/cpu_timer.hpp )
 add_executable( EngineProfiler ${source_files} )
 source_group( "Source Files" FILES ${source_files} )

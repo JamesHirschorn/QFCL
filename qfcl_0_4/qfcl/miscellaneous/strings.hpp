@@ -63,7 +63,10 @@ typedef prefix<QuantLib_string>::type QuantLib_prefix;
 // Reverse
 typedef boost::mpl::string<'R', 'e', 'v', 'e', 'r', 's', 'e'>::type Reverse_string;
 typedef prefix<Reverse_string>::type Reverse_prefix;
-	
+
+// basic
+typedef boost::mpl::string<'b', 'a', 's', 'i', 'c'>::type basic_string;
+
 // boost
 typedef boost::mpl::string<'b', 'o', 'o', 's', 't'>::type boost_string;
 typedef prefix<boost_string>::type boost_prefix;
@@ -76,6 +79,9 @@ typedef boost::mpl::string<'d', 'o', 'u', 'b', 'l', 'e'>::type double_string;
 
 // ex
 typedef boost::mpl::string<'e', 'x'>::type ex_string;
+
+// generator
+typedef boost::mpl::string<'g', 'e', 'n', 'e', 'r', 'a', 't', 'o', 'r'>::type generator_string;
 
 // in
 typedef boost::mpl::string<'i', 'n'>::type in_string;
@@ -95,6 +101,9 @@ typedef prefix<std_string>::type std_prefix;
 
 // uniform
 typedef boost::mpl::string<'u', 'n', 'i', 'f', 'o', 'r', 'm'>::type uniform_string;
+
+// variate
+typedef boost::mpl::string<'v', 'a', 'r', 'i', 'a', 't', 'e'>::type variate_string;
 
 }}	// namespace qfcl::string
 

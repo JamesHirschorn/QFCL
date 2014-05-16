@@ -19,7 +19,7 @@
 */
 
 #include <qfcl/miscellaneous/strings.hpp>
-#include <qfcl/random/variate_generator.hpp>
+#include <qfcl/random/generator/variate_generator.hpp>
 #include <qfcl/random/distribution/qfcl_distribution_adaptor.hpp>
 #include <qfcl/random/distribution/distributions.hpp>
 #include <qfcl/utility/tmp.hpp>
@@ -53,20 +53,20 @@ private:
 template<typename RealType = double>
 class uniform_0ex_1ex 
 	: public named_adapter<
-		  qfcl_distribution_adaptor<standard::uniform_0ex_1ex<RealType>>
+		  qfcl_distribution_adaptor<
+			  standard::uniform_0ex_1ex<RealType>
+			, variate_method<QUANTILE>
+			>
 		, tmp::concatenate<
 			  string::prefix<string::uniform_string, '_'>::type
 			, string::prefix<tmp::concatenate<string::number<0>::type, string::ex_string>::type, '_'>::type
 			, string::number<1>::type
 			, string::ex_string
-			, typename qfcl::names::template_typename<RealType>::type>>
+			, typename qfcl::names::template_typename<RealType>::type
+			>
+		>
 {
-public:
-	static const variate_method method; 
 };
-
-template<typename RealType>
-const variate_method uniform_0ex_1ex<RealType>::method = QUANTILE;
 
 template<class Engine, class RealType >
 class variate_generator<Engine, uniform_0ex_1ex<RealType> >
