@@ -18,7 +18,6 @@
 */
 
 #include <boost/mpl/bool.hpp>
-namespace mpl = boost::mpl;
 #include <boost/type_traits.hpp>
 
 #include <qfcl/defines.hpp>
@@ -26,6 +25,8 @@ namespace mpl = boost::mpl;
 namespace qfcl {
 
 namespace traits {
+
+namespace mpl = boost::mpl;
 
 namespace detail {
 	typedef char RT1; 

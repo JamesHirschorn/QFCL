@@ -20,6 +20,14 @@
 namespace qfcl {
 namespace string {
 
+namespace mpl = boost::mpl;
+
+//! the empty string
+typedef mpl::string<>::type empty;
+
+//! :: operator
+typedef mpl::string<':', ':'>::type field_operator;
+
 //! create a prefix from a string
 template<typename Prefix, char prefix_char = '-'>
 struct prefix
@@ -63,6 +71,12 @@ typedef prefix<QuantLib_string>::type QuantLib_prefix;
 // Reverse
 typedef boost::mpl::string<'R', 'e', 'v', 'e', 'r', 's', 'e'>::type Reverse_string;
 typedef prefix<Reverse_string>::type Reverse_prefix;
+
+// Twister
+typedef boost::mpl::string<'T', 'w', 'i', 's', 't', 'e', 'r'>::type Twister_string;
+
+// Uniform
+typedef boost::mpl::string<'U', 'n', 'i', 'f', 'o', 'r', 'm'>::type Uniform_string;
 
 // basic
 typedef boost::mpl::string<'b', 'a', 's', 'i', 'c'>::type basic_string;

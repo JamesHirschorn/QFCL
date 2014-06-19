@@ -25,7 +25,7 @@
 #include <qfcl/random/distribution/qfcl_distribution_adaptor.hpp>
 #include <qfcl/random/distribution/uniform_0ex_1ex.hpp>
 #include <qfcl/utility/tmp.hpp>
-#include <qfcl/utility/named_adapter.hpp>
+#include <qfcl/utility/named_adaptor.hpp>
 
 namespace qfcl {
 namespace random {
@@ -63,7 +63,7 @@ class boost_normal_quantile
 
 template<typename RealType = double, typename U01_Dist = uniform_0ex_1ex<RealType>>
 class boost_normal_quantile 
-	: public named_adapter<
+	: public named_adaptor<
 			qfcl_distribution_adaptor<standard::boost_normal_quantile<RealType, U01_Dist>
 		  , variate_method<QUANTILE>
 		  >

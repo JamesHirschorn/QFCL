@@ -32,26 +32,40 @@ namespace po = boost::program_options;
 #include <boost/random.hpp>
 #include <boost/timer/timer.hpp>
 #include <boost/tokenizer.hpp>
+#include <boost/utility/enable_if.hpp>
 
 #include <qfcl/defines.hpp>
-#include <qfcl/random/distribution/uniform_0in_1ex.hpp>
+
+#include <qfcl/random/distribution/boost_normal_distribution.hpp>
+#include <qfcl/random/distribution/boost_normal_ziggurat.hpp>
+#include <qfcl/random/distribution/normal_box_muller.hpp>
 #include <qfcl/random/distribution/normal_box_muller_polar.hpp>
+#include <qfcl/random/distribution/QuantLib_normal_box_muller_polar.hpp>
+
+#include <qfcl/random/distribution/uniform_0in_1ex.hpp>
 #include <qfcl/random/engine/mersenne_twister.hpp>
 #include <qfcl/random/generator/variate_generator.hpp>
+#include <qfcl/random/generator/QuantLib_BoxMullerGaussianRng.hpp>
+#include <qfcl/random/generator/QuantLib_ZigguratRng.hpp>
 #include <qfcl/utility/comma_separated_number.hpp>
 #include <qfcl/utility/names.hpp>
 #include <qfcl/utility/tmp.hpp>
 #include <qfcl/utility/type_selection.hpp>
+#include <qfcl/utility/type_traits.hpp>
 
 #include "utility/cpu_timer.hpp"
 
 using namespace std;
 
+// If you want to include speed tests for variate generators not satisfying the Named concept
+// (e.g. QuantLib::MersenneTwisterUniformRng)
+#define INCLUDE_UNNAMED
+
 // PRNG engine
 typedef qfcl::random::mt19937 Engine;
 
 //! list of continuous uniform generators
-typedef qfcl::named_adapter< 
+typedef qfcl::named_adaptor< 
 		mpl::vector<
 				qfcl::random::variate_generator<Engine, qfcl::random::uniform_0in_1ex<>>
 			>
@@ -63,11 +77,20 @@ typedef qfcl::named_adapter<
 uniform_continuous_generators;
 
 //! list of normal univariate generators
-typedef qfcl::named_adapter<
+typedef qfcl::named_adaptor<
 		mpl::vector<
-				qfcl::random::variate_generator<Engine, qfcl::random::normal_box_muller_polar<>>
+				//qfcl::random::variate_generator<Engine, qfcl::random::normal_box_muller<>>
+				qfcl::random::variate_generator<Engine, qfcl::random::boost_normal_distribution<>>
+			,	qfcl::random::variate_generator<Engine, qfcl::random::normal_box_muller_polar<>>	
 #ifdef USE_QUANTLIB
-//			,	qfcl::random::QuantLib_normal_box_muller_polar<>
+			,	qfcl::random::QuantLib_BoxMullerGaussianRng<>
+			//,	qfcl::random::variate_generator<Engine, qfcl::random::QuantLib_normal_box_muller_polar<>>
+#endif USE_QUANTLIB
+			,	qfcl::random::variate_generator<Engine, qfcl::random::boost_normal_ziggurat<>>
+#ifdef USE_QUANTLIB
+#ifdef INCLUDE_UNNAMED
+			,	qfcl::random::QuantLib_ZigguratRng
+#endif INCLUDE_UNNAMED
 #endif USE_QUANTLIB
 			>
 	,	qfcl::string::normal_string
@@ -76,6 +99,12 @@ normal_generators;
 
 //! list of all families of generators
 typedef mpl::vector<uniform_continuous_generators, normal_generators> generator_families;
+
+#ifdef INCLUDE_UNNAMED
+//! stop-gap for obtaining the method for unnamed generators
+vector<string> generator_method_names; 
+vector<string>::const_iterator method_name = generator_method_names.begin();
+#endif INCLUDE_UNNAMED
 
 //! List of all generators
 // NOTE: This should be the union of generator_families.
@@ -93,10 +122,6 @@ generator_list;
 const size_t indent_width = 5;
 const size_t precision = 12;
 
-// If you want to include speed tests for variate generators not satisfying the Named concept
-// (e.g. the boost::random engines)
-//#define INCLUDE_UNNAMED
-
 /** timers */
 
 /* timing routines */
@@ -109,15 +134,47 @@ typedef qfcl::timer::rdtsc_timer timer_type;
 
 // output results
 
-template<typename CounterType>
-void show_timing_results(uint64_t clock_cycles, CounterType iterations, const string & generator_name, const string & variate_method, double cpu_freq)
+template<typename CounterType, typename Generator>
+void show_timing_results(uint64_t clock_cycles, CounterType iterations, Generator const& gen, double cpu_freq,
+						 typename boost::enable_if<qfcl::traits::is_named<Generator>>::type* dummy = nullptr)
 {
 	// time taken in seconds
 	double time_taken = clock_cycles / cpu_freq;
 
 	std::cout 
-		<< boost::format("%1%.\nMethod: %2%\n%|3$18.2f| random numbers/second = %|4$13.8f| nanoseconds/random number = %|5$6.1f| CPU cycles/random number\n")
-			% generator_name % variate_method
+		<< boost::format("%1%.\nMethod: %2%\n%|3$18.6e| random numbers/second = %|4$13.4f| nanoseconds/random number = %|5$6.1f| CPU cycles/random number\n")
+			% qfcl::names::name(gen) 
+			% qfcl::names::name(Generator::method())
+			% ( iterations / time_taken ) 
+			% ( time_taken * UINT64_C(1000000000) / iterations ) 
+			% ( double(clock_cycles) / iterations);
+	
+	string format = "%1%.\nMethod: %5%\n%|2$18.2f| random numbers/second = %|3$13.8f| nanoseconds/random number = %|4$6.1f| CPU cycles/random number\n";
+
+	std::cout 
+		<< boost::format(format)
+			% distribution_name
+			% ( iterations / time_taken ) 
+			% ( time_taken * UINT64_C(1000000000) / iterations ) 
+			% ( double(clock_cycles) / iterations)
+			% variate_method;
+}
+
+template<typename CounterType, typename Generator>
+void show_timing_results(uint64_t clock_cycles, CounterType iterations, Generator const& gen, double cpu_freq,
+						 typename boost::disable_if<qfcl::traits::is_named<Generator>>::type* dummy = nullptr)
+{
+	// time taken in seconds
+	double time_taken = clock_cycles / cpu_freq;
+
+	std::cout 
+		<< boost::format("%1%.\nMethod: %2%\n%|3$18.6e| random numbers/second = %|4$13.4f| nanoseconds/random number = %|5$6.1f| CPU cycles/random number\n")
+			% qfcl::names::name_or_typename(gen) 
+#ifdef 	UNNAMED_NEEDS_METHOD
+			% *method_name++
+#else
+			% qfcl::names::name(Generator::method())
+#endif
 			% ( iterations / time_taken ) 
 			% ( time_taken * UINT64_C(1000000000) / iterations ) 
 			% ( double(clock_cycles) / iterations);
@@ -147,11 +204,7 @@ struct timer_object
 		Timer t;
 		auto result = t(gen, iterations);
 
-//#ifdef INCLUDE_UNNAMED
-		show_timing_results(result, iterations, qfcl::names::name_or_typename(gen), string(), cpu_frequency);
-//#else
-//		show_timing_results(result, iterations_, qfcl::names::name(dist), dist.method.name(), cpu_frequency);
-//#endif // INCLUDE_UNNAMED
+		show_timing_results(result, iterations, gen, cpu_frequency);
 		
 		// diagnostics: show the next num_variate_displayed variates
 		const string out_line = "Random number %1%: %|2$." 
@@ -281,6 +334,11 @@ int main(int argc, char * argv[])
 	typedef unsigned long CounterType;
 
 	CounterType iterations;
+
+#ifdef UNNAMED_NEEDS_METHOD
+	// initialize
+	generator_methods.push_back("Box-Muller (polar)");
+#endif UNNAMED_NEEDS_METHOD
 
 	// Declare the supported options.
 	po::options_description generic_options("Generic options");

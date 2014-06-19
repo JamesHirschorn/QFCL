@@ -9,6 +9,7 @@ namespace mpl = boost::mpl;
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/timer/timer.hpp>
 
+#include <qfcl/defines.hpp>
 #include <qfcl/random/engine/boost_mt19937.hpp>
 #include <qfcl/random/engine/mersenne_twister.hpp>
 #include <qfcl/utility/comma_separated_number.hpp>

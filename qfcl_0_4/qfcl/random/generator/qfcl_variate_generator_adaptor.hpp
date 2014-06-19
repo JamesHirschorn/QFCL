@@ -22,7 +22,7 @@
 #include <type_traits>
 
 #include <qfcl/miscellaneous/strings.hpp>
-#include <qfcl/utility/named_adapter.hpp>
+#include <qfcl/utility/named_adaptor.hpp>
 #include <qfcl/utility/names.hpp>
 #include <qfcl/utility/tmp.hpp>
 
@@ -37,10 +37,10 @@ typedef tmp::concatenate<
 variate_generator_string;
 }	// namespace detail
 
-// <p>Distribution</p> is any C++ variate generator.
+// <p>Generator</p> is any C++ variate generator.
 template<typename Generator, typename Engine, typename Distribution>
 struct qfcl_variate_generator_adaptor 
-	: qfcl::named_adapter<
+	: qfcl::named_adaptor<
 			Generator
 		,	typename tmp::concatenate<
 				detail::variate_generator_string
@@ -50,7 +50,7 @@ struct qfcl_variate_generator_adaptor
 		>
 {
 private:
-	typedef qfcl::named_adapter<
+	typedef qfcl::named_adaptor<
 			Generator
 		,	typename tmp::concatenate<
 				detail::variate_generator_string
@@ -61,8 +61,10 @@ private:
 	base_type;
 public:
 	//! redefine the engine and distribution types
-	typedef Engine			engine_type;
-	typedef Distribution	distribution_type;
+	typedef Engine								engine_type;
+	typedef Distribution						distribution_type;
+	typedef typename Distribution::result_type	result_type;
+	typedef typename Distribution::method		method;
 
 	// use perfect forwarding for constructors
 	qfcl_variate_generator_adaptor() : base_type() {}

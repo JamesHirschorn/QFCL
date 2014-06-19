@@ -23,7 +23,7 @@
 #include <qfcl/random/distribution/distributions.hpp>
 #include <qfcl/random/distribution/qfcl_distribution_adaptor.hpp>
 #include <qfcl/random/distribution/uniform_0in_1ex.hpp>
-#include <qfcl/utility/named_adapter.hpp>
+#include <qfcl/utility/named_adaptor.hpp>
 #include <qfcl/utility/names.hpp>
 
 namespace qfcl {
@@ -73,7 +73,7 @@ private:
 
 template<typename RealType = double, typename U01_Dist = uniform_0in_1ex<RealType>>
 class normal_box_muller 
-	: public named_adapter<
+	: public named_adaptor<
 			qfcl_distribution_adaptor<standard::normal_box_muller<RealType, U01_Dist>
 		  , variate_method<BOX_MULLER_BASIC>
 		  >

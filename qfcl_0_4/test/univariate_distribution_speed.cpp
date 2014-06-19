@@ -58,7 +58,7 @@ const size_t precision = 12;
 
 // If you want to include speed tests for engines not satisfying the Named concept
 // (e.g. the boost::random engines)
-#define INCLUDE_UNNAMED
+//#define INCLUDE_UNNAMED
 
 /** timers */
 
@@ -79,7 +79,8 @@ void show_timing_results(uint64_t clock_cycles, CounterType iterations, const st
 	double time_taken = clock_cycles / cpu_freq;
 
 	string format = variate_method.size() > 0
-		? "%1%.\nMethod: %5%\n%|2$18.2f| random numbers/second = %|3$13.8f| nanoseconds/random number = %|4$6.1f| CPU cycles/random number\n"
+		? //"%1%.\nMethod: %5%\n%|2$18.2f| random numbers/second = %|3$13.8f| nanoseconds/random number = %|4$6.1f| CPU cycles/random number\n"
+		  "%1%.\nMethod: %5%\n%|2$18.6e| random numbers/second = %|3$13.4f| nanoseconds/random number = %|4$6.1f| CPU cycles/random number\n"
 		: "%1%.\n%|2$18.2f| random numbers/second = %|3$13.8f| nanoseconds/random number = %|4$6.1f| CPU cycles/random number\n%5%";
 
 	std::cout 
@@ -118,7 +119,7 @@ struct timer_object
 #ifdef INCLUDE_UNNAMED
 		show_timing_results(result, iterations, qfcl::names::name_or_typename(dist), string(), cpu_frequency);
 #else
-		show_timing_results(result, iterations_, qfcl::names::name(dist), qfcl::names::name(Distribution::method()), cpu_frequency);
+		show_timing_results(result, iterations, qfcl::names::name(dist), qfcl::names::name(Distribution::method()), cpu_frequency);
 #endif // INCLUDE_UNNAMED
 		
 		// diagnostics: show the next num_variate_displayed variates
@@ -429,7 +430,8 @@ int main(int argc, char * argv[])
 	perform_speed_test<distribution_list, CounterType, NAME_OR_TYPENAME>(distributions_selected, timer_param, e, iterations, 
 		num_displayed_variates, cpu_frequency);
 #else
-	perform_speed_test<distribution_list, CounterType, NAME>(distributions_selected, timer_param, e, iterations, cpu_frequency);
+	perform_speed_test<distribution_list, CounterType, NAME>(distributions_selected, timer_param, e, iterations, 
+		num_displayed_variates, cpu_frequency);
 #endif // INCLUDE_UNNAMED
 
 	cout << "Press Enter to exit.";

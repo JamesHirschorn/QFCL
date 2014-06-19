@@ -203,7 +203,7 @@ private:
 	//! the RNG state stored as a circular buffer
 	UIntType x[n];
 	//! index within the state of the next random number to be generated
-	::std::size_t i;
+	std::size_t i;
 
 	//! the jump matrix
 	static matrix_t J;

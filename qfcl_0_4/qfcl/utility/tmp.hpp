@@ -10,6 +10,8 @@
 #ifndef	QFCL_UTILITY_TMP_HPP
 #define QFCL_UTILITY_TMP_HPP
 
+#ifndef __INTELLISENSE__
+
 /*! \file tmp.hpp
 	\brief Some metafunctions for TMP.
 
@@ -41,13 +43,13 @@
 
 #include "type_traits.hpp"
 
-// alias
-namespace mpl = boost::mpl;
-
 namespace qfcl {
 
 //! declarations for metaprogramming 
 namespace tmp {
+	
+// alias
+namespace mpl = boost::mpl;
 
 //! \cond
 //! a reserved class used as a substitute for variadic templates, using partial specialization
@@ -409,5 +411,7 @@ private:
 }	// tmp
 
 }	// qfcl
+
+#endif
 
 #endif	// !QFCL_UTILITY_TMP_HPP

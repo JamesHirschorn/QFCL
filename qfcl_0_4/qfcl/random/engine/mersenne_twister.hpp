@@ -28,15 +28,13 @@
 #include <boost/cstdint.hpp>
 #include <boost/integer/integer_mask.hpp>
 #include <boost/mpl/string.hpp>
-//! alias
-namespace mpl = boost::mpl;
 
+#include <qfcl/random/engine/detail/strings.hpp>
+#include <qfcl/random/engine/engine.hpp>
+#include <qfcl/random/engine/linear_generator.hpp>
+#include <qfcl/random/engine/reverse_adapter.hpp>
 #include <qfcl/types.hpp>
 #include <qfcl/utility/tmp.hpp>
-
-#include "linear_generator.hpp"
-#include "reverse_adapter.hpp"
-#include "engine.hpp"
 
 namespace qfcl {
 
@@ -248,10 +246,10 @@ struct mersenne_twister_policy_traits_temper
 template<typename EngineTraits>
 struct mersenne_twister_policy_traits
 	: public mersenne_twister_policy_traits_twist< EngineTraits, 
-		mpl::equal_to< mpl::long_<EngineTraits::mask_bits>, mpl::long_<0> >::value >,
+		boost::mpl::equal_to< boost::mpl::long_<EngineTraits::mask_bits>, boost::mpl::long_<0> >::value >,
 	  public mersenne_twister_policy_traits_temper< EngineTraits,
-		mpl::less< mpl::long_<EngineTraits::tempering_u>, mpl::long_<EngineTraits::word_size> >::value,
-		mpl::less< mpl::long_<EngineTraits::tempering_l>, mpl::long_<EngineTraits::word_size> >::value >
+		boost::mpl::less< boost::mpl::long_<EngineTraits::tempering_u>, boost::mpl::long_<EngineTraits::word_size> >::value,
+		boost::mpl::less< boost::mpl::long_<EngineTraits::tempering_l>, boost::mpl::long_<EngineTraits::word_size> >::value >
 {
 };
 
@@ -813,27 +811,6 @@ mersenne_twister_engine<EngineTraits>::ReverseTransition(const state & s)
     return static_cast<typename mersenne_twister_engine<EngineTraits>::state>(y);
 }
 
-/* engine names */
-
-//! \cond
-namespace detail {
-
-//! alias
-namespace mpl = boost::mpl;
-
-// abuse of language until there is support multicharacter literals of arbitrary length
-typedef mpl::string<'M', 'T'>::type _mt_prefix;
-typedef mpl::string<'1', '1', '2', '1', '3'>::type _11213_string;
-typedef mpl::string<'1', '9', '9', '3', '7'>::type _19937_string;
-typedef mpl::string<'-', '6', '4'>::type _64_suffix;
-
-typedef qfcl::tmp::concatenate< _mt_prefix, _11213_string, mpl::string<'A'>::type >::type mt11213a_name;
-typedef qfcl::tmp::concatenate< _mt_prefix, _11213_string, mpl::string<'B'>::type >::type mt11213b_name;
-typedef qfcl::tmp::concatenate< _mt_prefix, _19937_string >::type mt19937_name;
-typedef qfcl::tmp::concatenate< mt19937_name, _64_suffix >::type mt19937_64_name;
-}	// namespace detail
-//! \endcond
-
 /*! \brief MT11213A (32-bit)
 
 	350-dimensionally equidistributed PRNG from the original paper.
@@ -844,7 +821,7 @@ typedef mersenne_twister_traits<uint32_t, 32, 351, 175, 19,
 								UINT32_C(0xffd58000), 17,
 								5489u, UINT32_C(1812433253), 
 								UINT32_C(19650218), UINT32_C(1664525), UINT32_C(1566083941),
-								detail::mt11213a_name> 
+								string::mt11213a_name> 
 mt11213a_traits;
 
 typedef mersenne_twister_engine<mt11213a_traits> mt11213a;
@@ -863,7 +840,7 @@ typedef mersenne_twister_traits<uint32_t, 32, 351, 175, 19,
 						 UINT32_C(0xffe50000), 17,
 						 5489u, UINT32_C(1812433253), 
 						 UINT32_C(19650218), UINT32_C(1664525), UINT32_C(1566083941),
-						 detail::mt11213b_name> 
+						 string::mt11213b_name> 
 mt11213b_traits;
 
 typedef mersenne_twister_engine<mt11213b_traits> mt11213b;
@@ -882,7 +859,7 @@ typedef mersenne_twister_traits<uint32_t, 32, 624, 397, 31,
 						 UINT32_C(0xefc60000), 18,
 						 5489u, UINT32_C(1812433253), 
 						 UINT32_C(19650218), UINT32_C(1664525), UINT32_C(1566083941),
-						 detail::mt19937_name> 
+						 string::mt19937_name> 
 mt19937_traits;
 
 typedef mersenne_twister_engine<mt19937_traits> mt19937;
@@ -903,7 +880,7 @@ typedef mersenne_twister_traits<uint64_t, 64, 312, 156, 31,
 						 5489u, UINT64_C(6364136223846793005),
 						 UINT32_C(19650218), 
 						 UINT64_C(3935559000370003845), UINT64_C(2862933555777941757),
-						 detail::mt19937_64_name> 
+						 string::mt19937_64_name> 
 mt19937_64_traits;
 
 typedef mersenne_twister_engine<mt19937_64_traits> mt19937_64;

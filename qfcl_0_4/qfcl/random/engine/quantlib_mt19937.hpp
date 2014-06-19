@@ -1,4 +1,4 @@
-/* qfcl/random/engine/quantlib_mt19937.hpp
+/* qfcl/random/engine/QuantLib_mt19937.hpp
  *
  * Copyright (C) 2014 James Hirschorn <James.Hirschorn@gmail.com>
  *
@@ -12,7 +12,7 @@
 #ifndef QFCL_RANDOM_QUANTLIB_MT19937_HPP
 #define QFCL_RANDOM_QUANTLIB_MT19937_HPP
 
-/*! \file qfcl/random/engine/quantlib_mt19937.hpp
+/*! \file qfcl/random/engine/QuantLib_mt19937.hpp
 	\brief Wraps the QuantLib MT generator to obtain one compliant with QFCL.
 
 	\author James Hirschorn
@@ -27,9 +27,13 @@
 #include <qfcl/random/engine/mersenne_twister.hpp>
 #include <qfcl/random/engine/qfcl_engine_adapter.hpp>
 #include <qfcl/utility/tmp.hpp>
-#include <qfcl/utility/named_adapter.hpp>
+#include <qfcl/utility/named_adaptor.hpp>
 
 namespace qfcl {
+
+namespace string {
+typedef qfcl::tmp::concatenate<QuantLib_prefix, mt19937_name>::type QuantLib_mt19937_name;
+}	// namespace string
 
 namespace random {
 	
@@ -38,14 +42,12 @@ namespace random {
 //! \cond
 namespace detail {
 
-typedef qfcl::tmp::concatenate<qfcl::string::QuantLib_prefix, mt19937_name>::type QuantLib_mt19937_name;
-
-typedef named_adapter<
+typedef named_adaptor<
 	qfcl_engine_adapter<
-			QuantLib::MersenneTwisterUniformRng
+			::QuantLib::MersenneTwisterUniformRng
 		,	unsigned long
 		,	unsigned long[624]
-	>, detail::QuantLib_mt19937_name> ql_mt19937;
+	>, string::QuantLib_mt19937_name> ql_mt19937;
 }	// namespace detail
 //! \endcond
 
@@ -68,7 +70,7 @@ public:
 
 // named QFCL versions of QuantLib engines
 
-typedef named_adapter<standard::QuantLib_mt19937, detail::QuantLib_mt19937_name> QuantLib_mt19937; 
+typedef named_adaptor<standard::QuantLib_mt19937, string::QuantLib_mt19937_name> QuantLib_mt19937; 
 
 //! @}
 

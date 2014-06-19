@@ -179,6 +179,15 @@ set_target_properties( MatrixPowerSpeed PROPERTIES
 					   OUTPUT_NAME matrix_power_speed )
 target_link_libraries( MatrixPowerSpeed QFCL NTL ${Boost_LIBRARIES} )
 
+set( source_files TestU01_BigCrush.cpp )
+add_executable( TestU01_BigCrush ${source_files} )
+source_group( "Source Files" FILES ${source_files} )
+set_target_properties( TestU01_BigCrush PROPERTIES
+					   FOLDER test/QFCLQualityTests
+					   COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINITIONS}"
+					   OUTPUT_NAME TestU01_BigCrush )
+target_link_libraries( TestU01_BigCrush QFCL TestU01 ) 
+
 # ----------------------------------------------
 # EXECUTABLES
 # ----------------------------------------------

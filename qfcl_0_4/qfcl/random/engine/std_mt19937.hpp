@@ -28,7 +28,7 @@
 #include <qfcl/miscellaneous/strings.hpp>
 #include <qfcl/random/engine/mersenne_twister.hpp>
 #include <qfcl/utility/tmp.hpp>
-#include <qfcl/utility/named_adapter.hpp>
+#include <qfcl/utility/named_adaptor.hpp>
 
 namespace qfcl {
 
@@ -51,7 +51,7 @@ typedef qfcl::tmp::concatenate<string::std_prefix, mt19937_name>::type std_mt199
 
 // named versions of std engines
 
-typedef named_adapter<std::mt19937, detail::std_mt19937_name> std_mt19937;
+typedef named_adaptor<std::mt19937, detail::std_mt19937_name> std_mt19937;
 
 //! @}
 

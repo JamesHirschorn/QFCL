@@ -1,35 +1,34 @@
-/* qfcl/random/distribution/boost_normal_distribution.hpp
+/* qfcl/random/distribution/boost_normal_ziggurat.hpp
  *
- * Copyright (C) 2012 James Hirschorn <James.Hirschorn@gmail.com>
+ * Copyright (C) 2014 James Hirschorn <James.Hirschorn@gmail.com>
  *
  * Use, modification and distribution are subject to 
  * the BOOST Software License, Version 1.0.
  * (See accompanying file LICENSE.txt)
  */
 
-#ifndef QFCL_RANDOM_BOOST_NORMAL_DISTRIBUTION_HPP
-#define QFCL_RANDOM_BOOST_NORMAL_DISTRIBUTION_HPP
+#ifndef QFCL_RANDOM_BOOST_NORMAL_ZIGGURAT_HPP
+#define QFCL_RANDOM_BOOST_NORMAL_ZIGGURAT_HPP
 
 #include <qfcl/defines.hpp>
 
-/*! \file qfcl/random/distribution/boost_normal_distribution.hpp
+/*! \file qfcl/random/distribution/boost_normal_ziggurat.hpp
 	\brief Wraps the boost::normal_distribution distribution for use with QFCL.
 
 	Makes it additionally satisfy the Named Concept, and provide information
 	on what method is used.
 
 	\author James Hirschorn
-	\date February 12, 2014
+	\date May 19, 2014
 */
 
 #include <boost/mpl/string.hpp>
 #include <boost/random/normal_distribution.hpp>
 
 #include <qfcl/miscellaneous/strings.hpp>
+#include <qfcl/random/distribution/boost-trunk/normal_distribution.hpp>
 #include <qfcl/random/distribution/distributions.hpp>
 #include <qfcl/random/distribution/qfcl_distribution_adaptor.hpp>
-#include <qfcl/random/generator/qfcl_variate_generator_adaptor.hpp>
-#include <qfcl/random/generator/variate_generator.hpp>
 #include <qfcl/utility/tmp.hpp>
 #include <qfcl/utility/named_adaptor.hpp>
 #include <qfcl/utility/names.hpp>
@@ -39,22 +38,22 @@ namespace random {
 
 namespace standard {
 template<typename Real = double>
-class boost_normal_distribution 
-	: public boost::normal_distribution<Real>
+class boost_normal_ziggurat 
+	: public boost_trunk::normal_distribution<Real>
 {
 };
 }	// namespace standard
 
 template<typename Real = double>
-class boost_normal_distribution
+class boost_normal_ziggurat 
 	: public named_adaptor<
 		  qfcl_distribution_adaptor<
 			  standard::boost_normal_distribution<Real>
-			, variate_method<BOX_MULLER_BASIC>
+			, variate_method<ZIGGURAT>
 			>
 	    , tmp::concatenate<
 			  string::boost_prefix 
-			, string::normal_box_muller_name
+			, string::normal_ziggurat_name
 			,  typename qfcl::names::template_typename<Real>::type
 			>
 		>  
@@ -63,8 +62,8 @@ class boost_normal_distribution
 
 namespace standard {
 template<typename Engine, typename RealType>
-class variate_generator<Engine, boost_normal_distribution<RealType>>
-	: public variate_generator_base<Engine, boost_normal_distribution<RealType>>
+class variate_generator<Engine, boost_normal_ziggurat<RealType>>
+	: public variate_generator_base<Engine, boost_normal_ziggurat<RealType>>
 {
 public:
 	//! ctor
@@ -83,17 +82,17 @@ private:
 }	// namespace standard
 
 template<typename Engine, typename RealType>
-class variate_generator<Engine, boost_normal_distribution<RealType>>
+class variate_generator<Engine, boost_normal_ziggurat<RealType>>
 	: public qfcl_variate_generator_adaptor<
-			standard::variate_generator<Engine, typename boost_normal_distribution<RealType>::standard_type>
+			standard::variate_generator<Engine, typename boost_normal_ziggurat<RealType>::standard_type>
 		,	Engine
-		,	boost_normal_distribution<RealType>
+		,	boost_normal_ziggurat<RealType>
 		>
 {
 	typedef qfcl_variate_generator_adaptor<
-			standard::variate_generator<Engine, typename boost_normal_distribution<RealType>::standard_type>
+			standard::variate_generator<Engine, typename boost_normal_ziggurat<RealType>::standard_type>
 		,	Engine
-		,	boost_normal_distribution<RealType>
+		,	boost_normal_ziggurat<RealType>
 		> base_type;
 public:
 	variate_generator(
@@ -102,6 +101,7 @@ public:
 		: base_type(e, d)
 	{}
 };
+
 }}	// namespace qfcl::random
 
-#endif !QFCL_RANDOM_BOOST_NORMAL_DISTRIBUTION_HPP
+#endif !QFCL_RANDOM_BOOST_NORMAL_ZIGGURAT_HPP

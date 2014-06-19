@@ -24,7 +24,7 @@
 #include <qfcl/random/generator/qfcl_variate_generator_adaptor.hpp>
 #include <qfcl/random/generator/variate_generator.hpp>
 #include <qfcl/utility/tmp.hpp>
-#include <qfcl/utility/named_adapter.hpp>
+#include <qfcl/utility/named_adaptor.hpp>
 #include <qfcl/utility/names.hpp>
 
 namespace qfcl {
@@ -53,7 +53,7 @@ private:
 
 template<typename RealType = double>
 class uniform_0in_1ex
-	: public named_adapter<
+	: public named_adaptor<
 		  qfcl_distribution_adaptor<
 			  qfcl::random::standard::uniform_0in_1ex<RealType>
 			, variate_method<QUANTILE>>

@@ -20,7 +20,7 @@
 
 #include <boost/mpl/string.hpp>
 
-#include <qfcl/utility/named_adapter.hpp>
+#include <qfcl/utility/named_adaptor.hpp>
 #include <qfcl/utility/tmp.hpp>
 
 namespace qfcl {
@@ -54,7 +54,7 @@ public:
 typedef boost::mpl::string<'N', 'u', 'm', 'b', 'e', 'r'>::type Number;
 typedef boost::mpl::string<'l', 'i', 'n', 'e'>::type line;
 typedef qfcl::tmp::concatenate<Number, line>::type Numberline_name;
-typedef qfcl::named_adapter< qfcl::random::numberline<>, Numberline_name > Numberline;
+typedef qfcl::named_adaptor< qfcl::random::numberline<>, Numberline_name > Numberline;
 
 }} // namespaces
 #endif // 

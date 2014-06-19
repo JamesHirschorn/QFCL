@@ -27,14 +27,14 @@
 #include <qfcl/random/distribution/distributions.hpp>
 #include <qfcl/random/distribution/qfcl_distribution_adaptor.hpp>
 #include <qfcl/utility/tmp.hpp>
-#include <qfcl/utility/named_adapter.hpp>
+#include <qfcl/utility/named_adaptor.hpp>
 
 namespace qfcl {
 namespace random {
 
 template<typename RealType = double>
 struct boost_uniform_01 
-	: named_adapter<
+	: named_adaptor<
 		  qfcl_distribution_adaptor<
 		    boost::uniform_01<RealType>
 		  , variate_method<QUANTILE>

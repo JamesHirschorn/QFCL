@@ -31,6 +31,8 @@
 #define BOOST_MPL_LIMIT_STRING_SIZE 100
 #endif
 
+#ifndef __INTELLISENSE__
+
 /*! \defgroup macros miscellaneous macros
 	@{
 */
@@ -114,5 +116,6 @@ struct x##_wrap\
     typedef typename T::x type;\
 };
 
+#endif	__INTELLISENSE__
 
 #endif	// !QFCL_DEFINES_HPP

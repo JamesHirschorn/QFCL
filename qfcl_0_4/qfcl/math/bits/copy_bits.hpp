@@ -22,6 +22,8 @@
 
 #include <boost/integer.hpp>
 
+#include <qfcl/types.hpp>
+
 namespace qfcl {
 
 namespace math {

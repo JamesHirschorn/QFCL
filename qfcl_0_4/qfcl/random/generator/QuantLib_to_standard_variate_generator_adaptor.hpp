@@ -39,15 +39,15 @@ template<typename Generator, typename Engine, typename Distribution>
 class QuantLib_to_standard_variate_generator_adaptor
 {
 public:
-	typedef Engine					engine_type;
-	typedef Distribution												distribution_type;
-	typedef typename Generator::urng_type								QuantLib_uniform01_type;
-	typedef typename Generator::sample_type::value_type					result_type;
+	typedef Engine										engine_type;
+	typedef Distribution								distribution_type;
+	typedef typename Generator::urng_type				QuantLib_uniform01_type;
+	typedef typename Generator::sample_type::value_type	result_type;
 
 	QuantLib_to_standard_variate_generator_adaptor(
 		engine_type const& e = engine_type(),
 		distribution_type const& d = distribution_type())
-		: _gen(&_uniform01_rng), _uniform01_rng(e)
+		: _uniform01_rng(e), _gen(_uniform01_rng)
 	{};
 
 	result_type operator()()
@@ -55,8 +55,8 @@ public:
 		return _gen.next().value;
 	}
 private:
-	Generator _gen;
 	QuantLib_uniform01_type _uniform01_rng;
+	Generator _gen;
 };
 
 }}	// namespace qfcl::random

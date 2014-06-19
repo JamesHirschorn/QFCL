@@ -1,4 +1,4 @@
-/* qfcl/utility/named_adapter.hpp
+/* qfcl/utility/named_adaptor.hpp
  *
  * Copyright (C) 2012 James Hirschorn <James.Hirschorn@gmail.com>
  *
@@ -7,11 +7,11 @@
  * (See accompanying file LICENSE.txt)
  */
 
-#ifndef QFCL_NAMED_ADAPTER_HPP
-#define QFCL_NAMED_ADAPTER_HPP
+#ifndef QFCL_NAMED_ADAPTOR_HPP
+#define QFCL_NAMED_ADAPTOR_HPP
 
-/*! \file qfcl/utility/named_adapter.hpp
-	\brief Various adapters.
+/*! \file qfcl/utility/named_adaptor.hpp
+	\brief Various adaptors.
 
 	\author James Hirschorn
 	\date September 2, 2012
@@ -29,33 +29,33 @@ namespace qfcl {
 */
 
 template<typename Model, typename Name>
-struct named_adapter : public Model
+struct named_adaptor : public Model
 {
 	// use perfect forwarding for constructors
-	named_adapter() : Model() {}
+	named_adaptor() : Model() {}
 
 	template<typename T1>
-	explicit named_adapter(T1 && a1) 
+	explicit named_adaptor(T1 && a1) 
 		: Model( std::forward<T1>(a1) ) {}
 
 	template<typename T1, typename T2>
-	named_adapter(T1 && a1, T2 && a2) 
+	named_adaptor(T1 && a1, T2 && a2) 
 		: Model( std::forward<T1>(a1), std::forward<T2>(a2) ) {}
 
 	template<typename T1, typename T2, typename T3>
-	named_adapter(T1 && a1, T2 && a2, T3 && a3) 
+	named_adaptor(T1 && a1, T2 && a2, T3 && a3) 
 		: Model( std::forward<T1>(a1), std::forward<T2>(a2), std::forward<T3>(a3) ) {}
 
 	template<typename T1, typename T2, typename T3, typename T4>
-	named_adapter(T1 && a1, T2 && a2, T3 && a3, T4 && a4) 
+	named_adaptor(T1 && a1, T2 && a2, T3 && a3, T4 && a4) 
 		: Model( std::forward<T1>(a1), std::forward<T2>(a2), std::forward<T3>(a3), std::forward<T4>(a4) ) {}
 
 	template<typename T1, typename T2, typename T3, typename T4, typename T5>
-	named_adapter(T1 && a1, T2 && a2, T3 && a3, T4 && a4, T5 && a5) 
+	named_adaptor(T1 && a1, T2 && a2, T3 && a3, T4 && a4, T5 && a5) 
 		: Model( std::forward<T1>(a1), std::forward<T2>(a2), std::forward<T3>(a3), std::forward<T4>(a4), std::forward<T5>(a5) ) {}
 
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-	named_adapter(T1 && a1, T2 && a2, T3 && a3, T4 && a4, T5 && a5, T6 && a6) 
+	named_adaptor(T1 && a1, T2 && a2, T3 && a3, T4 && a4, T5 && a5, T6 && a6) 
 		: Model( std::forward<T1>(a1), std::forward<T2>(a2), std::forward<T3>(a3), std::forward<T4>(a4), 
 			     std::forward<T5>(a5), std::forward<T6>(a6) ) {}
 
@@ -69,7 +69,7 @@ struct named_adapter : public Model
 */
 /*
 template<typename T>
-struct adapter_traits
+struct adaptor_traits
 {
 	static bool is_named() {return sizeof(qfcl::detail::test<T>(0)) == 1;}
 };
@@ -83,4 +83,4 @@ struct adapter_traits
 */
 }	// namespace qfcl
 
-#endif  QFCL_NAMED_ADAPTER_HPP
+#endif  QFCL_NAMED_ADAPTOR_HPP

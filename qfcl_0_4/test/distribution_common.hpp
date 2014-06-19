@@ -8,8 +8,9 @@ namespace mpl = boost::mpl;
 
 #include <qfcl/miscellaneous/strings.hpp>
 #include <qfcl/random/distribution/boost_normal_distribution.hpp>
-#include <qfcl/random/distribution/boost_uniform_01.hpp>
 #include <qfcl/random/distribution/boost_normal_quantile.hpp>
+#include <qfcl/random/distribution/boost_normal_ziggurat.hpp>
+#include <qfcl/random/distribution/boost_uniform_01.hpp>
 #include <qfcl/random/distribution/normal_box_muller.hpp>
 #include <qfcl/random/distribution/normal_box_muller_polar.hpp>
 #include <qfcl/random/distribution/normal_inversion.hpp>
@@ -17,7 +18,7 @@ namespace mpl = boost::mpl;
 #include <qfcl/random/distribution/uniform_0in_1ex.hpp>
 #include <qfcl/random/distribution/uniform_0in_1in.hpp>
 #include <qfcl/utility/tmp.hpp>
-#include <qfcl/utility/named_adapter.hpp>
+#include <qfcl/utility/named_adaptor.hpp>
 #include <qfcl/utility/names.hpp>
 
 #ifdef USE_QUANTLIB
@@ -30,7 +31,7 @@ namespace mpl = boost::mpl;
 #include <qfcl/utility/tmp.hpp>
 
 //! list of continuous uniform distributions
-typedef qfcl::named_adapter< 
+typedef qfcl::named_adaptor< 
 		mpl::vector<
 				qfcl::random::uniform_0ex_1ex<> 
 			,	qfcl::random::uniform_0in_1ex<>
@@ -45,7 +46,7 @@ typedef qfcl::named_adapter<
 continuous_uniform_distributions;
 
 //! list of normal univariate distributions
-typedef qfcl::named_adapter<
+typedef qfcl::named_adaptor<
 		mpl::vector<
 				qfcl::random::normal_inversion<>
 			,	qfcl::random::boost_normal_quantile<>
@@ -55,6 +56,7 @@ typedef qfcl::named_adapter<
 #ifdef USE_QUANTLIB
 			,	qfcl::random::QuantLib_normal_box_muller_polar<>
 #endif USE_QUANTLIB
+			,	qfcl::random::boost_normal_ziggurat<>
 			>
 	,	qfcl::string::normal_string
 	>

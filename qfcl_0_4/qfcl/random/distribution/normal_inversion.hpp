@@ -25,7 +25,7 @@
 #include <qfcl/random/distribution/qfcl_distribution_adaptor.hpp>
 #include <qfcl/random/distribution/uniform_0ex_1ex.hpp>
 #include <qfcl/random/distribution/normal_quantile.hpp>
-#include <qfcl/utility/named_adapter.hpp>
+#include <qfcl/utility/named_adaptor.hpp>
 #include <qfcl/utility/names.hpp>
 
 namespace qfcl {
@@ -114,7 +114,7 @@ class normal_inversion
 
 template<typename RealType = double, typename U01_Dist = uniform_0ex_1ex<RealType>>
 class normal_inversion
-	: public named_adapter<
+	: public named_adaptor<
 			qfcl_distribution_adaptor<
 			standard::normal_inversion<RealType, U01_Dist>
 		  , variate_method<QUANTILE>

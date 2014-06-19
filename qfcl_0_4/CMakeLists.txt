@@ -66,6 +66,20 @@ else( DEFINED $ENV{NTL_DIR} )
 endif( DEFINED $ENV{NTL_DIR} )
 
 #-----------------------------------------------
+# TestU01
+#-----------------------------------------------
+
+# set TESTU01_ROOT to your TESTU01 installation directory
+# if CMake has trouble finding TESTU01 (can be done from CMake GUI)
+set( TESTU01_ROOT_DOCSTRING "TESTU01 installation directory: set if CMake has trouble finding TESTU01" )
+set( TESTU01_ROOT_DEFAULT "../TestU01-1.2.3-CMake" )
+if( DEFINED $ENV{TESTU01_DIR} )
+    set( TESTU01_ROOT $ENV{TESTU01_DIR} CACHE PATH ${TESTU01_ROOT_DOCSTRING} )
+else( DEFINED $ENV{TESTU01_DIR} )
+    set( TESTU01_ROOT ${TESTU01_ROOT_DEFAULT} CACHE PATH ${TESTU01_ROOT_DOCSTRING} )
+endif( DEFINED $ENV{TESTU01_DIR} )
+
+#-----------------------------------------------
 # QuantLib
 #-----------------------------------------------
 
@@ -78,6 +92,13 @@ option( USE_QUANTLIB "Use QuantLib?" OFF )
 
 # whether to use C++11
 option( USE_CPP11 "Use C++11?" OFF )
+
+#-----------------------------------------------
+# TestU01
+#-----------------------------------------------
+
+# whether to use TestU01
+option( USE_TestU01 "Use TestU01?" OFF )
 
 # ------------------------------------------------------------------------
 # INCLUDES
@@ -113,8 +134,8 @@ if( USE_QUANTLIB )
 		set( QUANTLIB_ROOT ${QUANTLIB_ROOT_DEFAULT} CACHE PATH ${QUANTLIB_ROOT_DOCSTRING} )
 	endif( DEFINED $ENV{QUANTLIB_ROOT} )
 	find_package( QuantLib )
-	include_directories( ${QuantLib_INCLUDE_DIRS} )
-	link_directories( ${QuantLib_LIB_DIR} )
+	#include_directories( ${QuantLib_INCLUDE_DIRS} )
+	#link_directories( ${QuantLib_LIB_DIR} )
 	mark_as_advanced( CLEAR QUANTLIB_ROOT )
 else( USE_QUANTLIB )
 	mark_as_advanced( FORCE QUANTLIB_ROOT )
@@ -122,6 +143,13 @@ endif( USE_QUANTLIB )
 
 include( NTL )
 #message( "NTL_ROOT:" ${NTL_ROOT} )
+
+# TestU01
+if( USE_TestU01 )
+	find_package( TestU01 )
+	include_directories( ${TestU01_INCLUDE_DIRS} )
+	link_directories( ${TestU01_LIBRARY_DIRS} )
+endif( USE_TestU01 )
 
 # C++11
 

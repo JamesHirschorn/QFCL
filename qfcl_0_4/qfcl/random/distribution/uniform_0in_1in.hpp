@@ -24,7 +24,7 @@
 #include <qfcl/random/generator/variate_generator.hpp>
 #include <qfcl/random/generator/qfcl_variate_generator_adaptor.hpp>
 #include <qfcl/utility/tmp.hpp>
-#include <qfcl/utility/named_adapter.hpp>
+#include <qfcl/utility/named_adaptor.hpp>
 #include <qfcl/utility/names.hpp>
 
 namespace qfcl {
@@ -54,7 +54,7 @@ private:
 
 template<typename RealType = double>
 class uniform_0in_1in
-	: public named_adapter<
+	: public named_adaptor<
 		  qfcl_distribution_adaptor<
 			  qfcl::random::standard::uniform_0in_1in<RealType>
 			, variate_method<QUANTILE>>
@@ -67,19 +67,13 @@ class uniform_0in_1in
 {
 };
 
-//template<typename RealType>
-//const variate_method uniform_0in_1in<RealType>::method = QUANTILE;
-
 // improved efficiently
 namespace standard {
 template<class Engine, class RealType >
-class variate_generator<Engine, uniform_0in_1in<RealType> >
+class variate_generator<Engine, uniform_0in_1in<RealType>>
+	: public variate_generator_base<Engine, uniform_0in_1in<RealType>>
 {
 public:
-    typedef Engine                      engine_type;
-    typedef standard::uniform_0in_1in<RealType>   distribution_type;
-    typedef RealType                    result_type;
-
 	//! constructor
     variate_generator(engine_type e = engine_type(), distribution_type d = distribution_type()) 
 		: _eng(e)//, _dist(d)
@@ -117,18 +111,20 @@ bool variate_generator<Engine, uniform_0in_1in<RealType> >::_initialized = false
 template<typename Engine, typename RealType>
 class variate_generator<Engine, uniform_0in_1in<RealType> >
 	: public qfcl_variate_generator_adaptor<
-			standard::variate_generator<Engine, standard::uniform_0in_1in<RealType> >
+			standard::variate_generator<Engine, typename uniform_0in_1in<RealType>::standard_type>
 		,	Engine
 		,	uniform_0in_1in<RealType>
 		>
 {
 	typedef qfcl_variate_generator_adaptor<
-			standard::variate_generator<Engine, standard::uniform_0in_1in<RealType> >
+			standard::variate_generator<Engine, typename uniform_0in_1in<RealType>::standard_type>
 		,	Engine
 		,	uniform_0in_1in<RealType>
 		> base_type;
 public:
-	variate_generator(Engine const& e, uniform_0in_1in<RealType> const& d = uniform_0in_1in<RealType>())
+	variate_generator(
+		engine_type const& e, 
+		distribution_type const& d = distribution_type())
 		: base_type(e, d)
 	{}
 };

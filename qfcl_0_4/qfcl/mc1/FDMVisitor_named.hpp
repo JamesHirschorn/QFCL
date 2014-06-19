@@ -56,105 +56,105 @@ typedef qfcl::tmp::concatenate<PredictorCorrector_name, mpl::string<'K', 'L'>::t
 
 template<typename X, typename Time, typename RT, typename Generator>
 class ExplicitEuler_named
-	: public qfcl::named_adapter< ExplicitEuler<X, Time, RT, Generator>, detail::ExplicitEuler_name >
+	: public qfcl::named_adaptor< ExplicitEuler<X, Time, RT, Generator>, detail::ExplicitEuler_name >
 {
 public:
 	ExplicitEuler_named() {}
 	ExplicitEuler_named(long NSteps, Sde<X, Time, RT> & sde, const Generator & generator)
-		: qfcl::named_adapter< ExplicitEuler<X, Time, RT, Generator>, 
+		: qfcl::named_adaptor< ExplicitEuler<X, Time, RT, Generator>, 
 							   detail::ExplicitEuler_name >(NSteps, sde, generator) {}
 };
 
 template<typename X, typename Time, typename RT, typename Generator>
 class ExplicitEulerTypeII_named
-	: public qfcl::named_adapter< ExplicitEulerTypeII<X, Time, RT, Generator>, detail::ExplicitEulerTypeII_name >
+	: public qfcl::named_adaptor< ExplicitEulerTypeII<X, Time, RT, Generator>, detail::ExplicitEulerTypeII_name >
 {
 public:
 	ExplicitEulerTypeII_named() {}
 	ExplicitEulerTypeII_named(long NSteps, Sde<X, Time, RT> & sde, const Generator & generator)
-		: qfcl::named_adapter< ExplicitEulerTypeII<X, Time, RT, Generator>, 
+		: qfcl::named_adaptor< ExplicitEulerTypeII<X, Time, RT, Generator>, 
 							   detail::ExplicitEulerTypeII_name >(NSteps, sde, generator) {}
 };
 
 template<typename X, typename Time, typename RT, typename Generator>
 class ExplicitEulerMM_named
-	: public qfcl::named_adapter< ExplicitEulerMM<X, Time, RT, Generator>, detail::ExplicitEulerMM_name >
+	: public qfcl::named_adaptor< ExplicitEulerMM<X, Time, RT, Generator>, detail::ExplicitEulerMM_name >
 {
 public:
 	ExplicitEulerMM_named() {}
 	ExplicitEulerMM_named(long NSteps, Sde<X, Time, RT> & sde, const Generator & generator)
-		: qfcl::named_adapter< ExplicitEulerMM<X, Time, RT, Generator>, 
+		: qfcl::named_adaptor< ExplicitEulerMM<X, Time, RT, Generator>, 
 							   detail::ExplicitEulerMM_name >(NSteps, sde, generator) {}
 };
 
 template<typename X, typename Time, typename RT, typename Generator>
 class RichardsonEuler_named
-	: public qfcl::named_adapter< RichardsonEuler<X, Time, RT, Generator>, detail::RichardsonEuler_name >
+	: public qfcl::named_adaptor< RichardsonEuler<X, Time, RT, Generator>, detail::RichardsonEuler_name >
 {
 public:
 	RichardsonEuler_named() {}
 	RichardsonEuler_named(long NSteps, Sde<X, Time, RT> & sde, const Generator & generator)
-		: qfcl::named_adapter< RichardsonEuler<X, Time, RT, Generator>, 
+		: qfcl::named_adaptor< RichardsonEuler<X, Time, RT, Generator>, 
 							   detail::RichardsonEuler_name >(NSteps, sde, generator) {}
 };
 
 //! For now alpha = beta = 0.5 is hard-coded. This is a kludge.
 template<typename X, typename Time, typename RT, typename Generator>
 class PredictorCorrector_named
-	: public qfcl::named_adapter< PredictorCorrector<X, Time, RT, Generator>, detail::PredictorCorrector_name >
+	: public qfcl::named_adaptor< PredictorCorrector<X, Time, RT, Generator>, detail::PredictorCorrector_name >
 {
 public:
 	PredictorCorrector_named() {}
 	PredictorCorrector_named(long NSteps, Sde<X, Time, RT> & sde, const Generator & generator)
-		: qfcl::named_adapter< PredictorCorrector<X, Time, RT, Generator>, 
+		: qfcl::named_adaptor< PredictorCorrector<X, Time, RT, Generator>, 
 							   detail::PredictorCorrector_name >(NSteps, sde, generator, 0.5, 0.5) {}
 };
 
 //! For now alpha = beta = 0.5 is hard-coded. This is a kludge.
 template<typename X, typename Time, typename RT, typename Generator>
 class PredictorCorrectorClassico_named
-	: public qfcl::named_adapter< PredictorCorrectorClassico<X, Time, RT, Generator>, 
+	: public qfcl::named_adaptor< PredictorCorrectorClassico<X, Time, RT, Generator>, 
 								  detail::PredictorCorrectorClassico_name >
 {
 public:
 	PredictorCorrectorClassico_named() {}
 	PredictorCorrectorClassico_named(long NSteps, Sde<X, Time, RT> & sde, const Generator & generator)
-		: qfcl::named_adapter< PredictorCorrectorClassico<X, Time, RT, Generator>, 
+		: qfcl::named_adaptor< PredictorCorrectorClassico<X, Time, RT, Generator>, 
 							   detail::PredictorCorrectorClassico_name >(NSteps, sde, generator, 0.5, 0.5) {}
 };
 
 template<typename X, typename Time, typename RT, typename Generator>
 class Milstein_named
-	: public qfcl::named_adapter< Milstein<X, Time, RT, Generator>, detail::Milstein_name >
+	: public qfcl::named_adaptor< Milstein<X, Time, RT, Generator>, detail::Milstein_name >
 {
 public:
 	Milstein_named() {}
 	Milstein_named(long NSteps, Sde<X, Time, RT> & sde, const Generator & generator)
-		: qfcl::named_adapter< Milstein<X, Time, RT, Generator>, 
+		: qfcl::named_adaptor< Milstein<X, Time, RT, Generator>, 
 							   detail::Milstein_name >(NSteps, sde, generator) {}
 };
 
 //! kludge: hard-coded tol = 0.01
 template<typename X, typename Time, typename RT, typename Generator>
 class KarhunenLoeve_named
-	: public qfcl::named_adapter< KarhunenLoeve<X, Time, RT, Generator>, detail::KarhunenLoeve_name >
+	: public qfcl::named_adaptor< KarhunenLoeve<X, Time, RT, Generator>, detail::KarhunenLoeve_name >
 {
 public:
 	KarhunenLoeve_named() {}
 	KarhunenLoeve_named(long NSteps, Sde<X, Time, RT> & sde, const Generator & generator)
-		: qfcl::named_adapter< KarhunenLoeve<X, Time, RT, Generator>, 
+		: qfcl::named_adaptor< KarhunenLoeve<X, Time, RT, Generator>, 
 							   detail::KarhunenLoeve_name >(NSteps, sde, generator, 0.01) {}
 };
 
 //! For now alpha = beta = 0.5 and tol are hard-coded. This is a kludge.
 template<typename X, typename Time, typename RT, typename Generator>
 class PredictorCorrectorKL_named
-	: public qfcl::named_adapter< PredictorCorrectorKL<X, Time, RT, Generator>, detail::PredictorCorrectorKL_name >
+	: public qfcl::named_adaptor< PredictorCorrectorKL<X, Time, RT, Generator>, detail::PredictorCorrectorKL_name >
 {
 public:
 	PredictorCorrectorKL_named() {}
 	PredictorCorrectorKL_named(long NSteps, Sde<X, Time, RT> & sde, const Generator & generator)
-		: qfcl::named_adapter< PredictorCorrectorKL<X, Time, RT, Generator>, 
+		: qfcl::named_adaptor< PredictorCorrectorKL<X, Time, RT, Generator>, 
 							   detail::PredictorCorrectorKL_name >(NSteps, sde, generator, 0.5, 0.5, 0.01) {}
 };
 

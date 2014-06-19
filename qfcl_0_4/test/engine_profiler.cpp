@@ -44,7 +44,7 @@ namespace po = boost::program_options;
 #include <qfcl/defines.hpp>
 #include <qfcl/utility/comma_separated_number.hpp>
 #include <qfcl/random/engine/counting.hpp>
-#include <qfcl/random/engine/named_adapter.hpp>
+#include <qfcl/random/engine/named_adaptor.hpp>
 #include <qfcl/random/engine/numberline.hpp>
 #include <qfcl/random/engine/mersenne_twister.hpp>
 #include <qfcl/random/engine/twisted_generalized_feedback_shift_register.hpp>

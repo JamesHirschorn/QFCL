@@ -40,6 +40,11 @@ public:
 
 	typedef result_type result_type;
 	typedef state_type state;
+
+	Engine get_engine() const
+	{
+		return e;
+	}
 protected:
 	Engine e;
 };

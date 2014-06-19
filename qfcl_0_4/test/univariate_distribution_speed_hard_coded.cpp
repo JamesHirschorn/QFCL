@@ -34,9 +34,11 @@ namespace mpl = boost::mpl;
 #include <qfcl/random/engine/mersenne_twister.hpp>
 #include <qfcl/utility/comma_separated_number.hpp>
 #include <qfcl/utility/names.hpp>
-#include <qfcl/utility/tmp.hpp>
-#include <qfcl/utility/type_selection.hpp>
+//#include <qfcl/utility/tmp.hpp>
+//#include <qfcl/utility/type_selection.hpp>
 
+#include <qfcl/random/distribution/boost-trunk/normal_distribution.hpp>
+#include <qfcl/random/distribution/boost_normal_ziggurat.hpp>
 #include <qfcl/random/distribution/normal_box_muller.hpp>
 #include <qfcl/random/distribution/normal_box_muller_polar.hpp>
 #include <qfcl/random/distribution/QuantLib_normal_box_muller_polar.hpp>
@@ -44,9 +46,13 @@ namespace mpl = boost::mpl;
 #include "utility/cpu_timer.hpp"
 
 /** Select which generators to test. */
-#define UNIFORM_0IN_1EX
+//#define UNIFORM_0IN_1EX
 //#define UNIFORM_0IN_1IN
-//#define NORMAL_BOX_MULLER_POLAR
+#define NORMAL_BOX_MULLER
+#define NORMAL_BOX_MULLER_POLAR
+//#define QUANTLIB_NORMAL_BOX_MULLER_POLAR
+//#define BOOST_NORMAL_ZIGGURAT
+#define QFCL_BOOST_NORMAL_ZIGGURAT
 
 // which TSC to use
 
@@ -77,8 +83,8 @@ int main(int argc, char * argv[])
 	using namespace std;
 	using namespace qfcl::random;
 
-	typedef unsigned long long CounterType;
-	//typedef unsigned long CounterType;
+	//typedef unsigned long long CounterType;
+	typedef unsigned long CounterType;
 
 	CounterType iterations = 100000000;
 
@@ -112,10 +118,9 @@ int main(int argc, char * argv[])
 		for (CounterType i = 0; i < iterations; ++i)		
 		{											
 			value = d(e);		
-			if (show_values)
-			{
+#ifdef SHOW_VALUES
 				cout << boost::format("Random number %|1$3|: %|2$20.10|.\n") % i % value; 
-			}
+#endif
 		}											
 												
 		uint64_t end = timer();						
@@ -143,10 +148,9 @@ int main(int argc, char * argv[])
 		for (CounterType i = 0; i < iterations; ++i)		
 		{											
 			value = d(e);		
-			if (show_values)
-			{
+#ifdef SHOW_VALUES
 				cout << boost::format("Random number %|1$3|: %|2$20.10|.\n") % i % value; 
-			}
+#endif
 		}											
 												
 		uint64_t end = timer();						
@@ -157,8 +161,8 @@ int main(int argc, char * argv[])
 			result, iterations, 
 			qfcl::names::name_or_typename(d), qfcl::names::name(Distribution::method()), 
 			cpu_frequency);
-	}
-#endif 
+	}	
+#endif
 #ifdef NORMAL_BOX_MULLER_POLAR
 	{
 		typedef normal_box_muller_polar<> Distribution;
@@ -174,10 +178,9 @@ int main(int argc, char * argv[])
 		for (CounterType i = 0; i < iterations; ++i)		
 		{											
 			value = d(e);		
-			if (show_values)
-			{
+#ifdef SHOW_VALUES
 				cout << boost::format("Random number %|1$3|: %|2$20.10|.\n") % i % value; 
-			}
+#endif
 		}											
 												
 		uint64_t end = timer();						
@@ -190,7 +193,7 @@ int main(int argc, char * argv[])
 			cpu_frequency);
 	}	
 #endif
-#ifdef QUANTLIB_NORMAL_BOX_MULLER
+#ifdef QUANTLIB_NORMAL_BOX_MULLER_POLAR
 	{
 		typedef  QuantLib_normal_box_muller_polar<> Distribution;
 		Engine e;
@@ -205,10 +208,9 @@ int main(int argc, char * argv[])
 		for (CounterType i = 0; i < iterations; ++i)		
 		{											
 			value = d(e);							
-			if (show_values)
-			{
+#ifdef SHOW_VALUES
 				cout << boost::format("Random number %|1$3|: %|2$20.10|.\n") % i % value; 
-			}
+#endif
 		}											
 												
 		uint64_t end = timer();						
@@ -221,7 +223,66 @@ int main(int argc, char * argv[])
 			cpu_frequency);
 	}
 #endif
+#ifdef BOOST_NORMAL_ZIGGURAT
+	{
+		typedef boost_trunk::random::normal_distribution<> Distribution;
+		Engine e;
+		Distribution d;
+	
+		volatile Distribution::result_type value;
+												
+		timer_t timer;								
+												
+		uint64_t start = timer();					
+												
+		for (CounterType i = 0; i < iterations; ++i)		
+		{											
+			value = d(e);		
+#ifdef SHOW_VALUES
+				cout << boost::format("Random number %|1$3|: %|2$20.10|.\n") % i % value; 
+#endif
+		}											
+												
+		uint64_t end = timer();						
+												
+		uint64_t result = end - start;	
 
+		show_timing_results(
+			result, iterations, 
+			qfcl::names::name_or_typename(d), qfcl::names::name(Distribution::method()), 
+			cpu_frequency);
+	}	
+#endif
+#ifdef QFCL_BOOST_NORMAL_ZIGGURAT
+	{
+		typedef qfcl::random::boost_normal_ziggurat<> Distribution;
+		Engine e;
+		Distribution d;
+	
+		volatile Distribution::result_type value;
+												
+		timer_t timer;								
+												
+		uint64_t start = timer();					
+												
+		for (CounterType i = 0; i < iterations; ++i)		
+		{											
+			value = d(e);		
+#ifdef SHOW_VALUES
+				cout << boost::format("Random number %|1$3|: %|2$20.10|.\n") % i % value; 
+#endif
+		}											
+												
+		uint64_t end = timer();						
+												
+		uint64_t result = end - start;	
+
+		show_timing_results(
+			result, iterations, 
+			qfcl::names::name_or_typename(d), qfcl::names::name(Distribution::method()),  
+			cpu_frequency);
+	}	
+#endif	
 	cout << "Press Enter to exit.";
 
 	char c;

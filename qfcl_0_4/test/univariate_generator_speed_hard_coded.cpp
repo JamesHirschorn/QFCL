@@ -27,6 +27,7 @@ using std::vector;
 #include <boost/random.hpp>
 #include <boost/timer/timer.hpp>
 
+#include <ql/experimental/math/zigguratrng.hpp>
 #include <ql/math/randomnumbers/mt19937uniformrng.hpp>
 
 #include <qfcl/defines.hpp>
@@ -37,20 +38,30 @@ using std::vector;
 #include <qfcl/utility/type_selection.hpp>
 
 //#include <qfcl/random/distribution/normal_box_muller.hpp>
+#include <qfcl/random/distribution/boost_normal_distribution.hpp>
+#include <qfcl/random/distribution/boost_normal_ziggurat.hpp>
 #include <qfcl/random/distribution/normal_box_muller_polar.hpp>
 #include <qfcl/random/distribution/QuantLib_normal_box_muller_polar.hpp>
 #include <qfcl/random/distribution/uniform_0in_1ex.hpp>
 #include <qfcl/random/distribution/uniform_0in_1in.hpp>
+#include <qfcl/random/generator/QuantLib_BoxMullerGaussianRng.hpp>
+#include <qfcl/random/generator/QuantLib_ZigguratRng.hpp>
 
 #include "utility/cpu_timer.hpp"
 
 /** Select which generators to test. */
-#define UNIFORM_0IN_1EX
-#define UNIFORM_0IN_1IN
-#define QUANTLIB_MT19937_UNIFORM_RNG	
+//#define UNIFORM_0IN_1EX
+//#define UNIFORM_0IN_1IN
+//#define QUANTLIB_MT19937_UNIFORM_RNG	
+//#define BOOST_NORMAL_BOX_MULLER
 //#define NORMAL_BOX_MULLER_POLAR
 //#define BOOST_NORMAL_BOX_MULLER_POLAR	// uses boost::variate_generator with qfcl::random::normal_box_muller_polar
 //#define QUANTLIB_NORMAL_BOX_MULLER_POLAR
+//#define QUANTLIB_NATIVE_NORMAL_BOX_MULLER_POLAR
+//#define QUANTLIB_WRAPPED_NATIVE_NORMAL_BOX_MULLER_POLAR
+#define BOOST_NORMAL_ZIGGURAT
+#define QUANTLIB_NATIVE_NORMAL_ZIGGURAT
+#define QUANTLIB_NORMAL_ZIGGURAT
 
 // which TSC to use
 
@@ -206,8 +217,40 @@ int main(int argc, char * argv[])
 			cpu_frequency);
 	}
 #endif
+#ifdef BOOST_NORMAL_BOX_MULLER
+	{
+		typedef qfcl::random::boost_normal_distribution<> Distribution;
+
+		typedef qfcl::random::variate_generator<Engine, Distribution> Generator;
+		Engine e;
+		Distribution d;
+		Generator gen(e, d);
+	
+		volatile Generator::result_type value;
+												
+		timer_t timer;								
+												
+		uint64_t start = timer();					
+												
+		for (CounterType i = 0; i < iterations; ++i)		
+		{											
+			value = gen();		
+#ifdef SHOW_VALUES
+				cout << boost::format("Random variate %|1$3|: %|2$20.10|.\n") % i % value; 
+#endif
+		}											
+												
+		uint64_t end = timer();						
+												
+		uint64_t result = end - start;	
+
+		show_timing_results(
+			result, iterations, 
+			qfcl::names::name_or_typename(gen), qfcl::names::name_or_typename(Distribution::method()), 
+			cpu_frequency);
+	}
+#endif
 #ifdef NORMAL_BOX_MULLER_POLAR
-	// normal_box_muller_polar
 	{
 		typedef qfcl::random::normal_box_muller_polar<> Distribution;
 
@@ -241,7 +284,6 @@ int main(int argc, char * argv[])
 	}
 #endif
 #ifdef BOOST_NORMAL_BOX_MULLER_POLAR
-	// normal_box_muller_polar
 	{
 		typedef qfcl::random::normal_box_muller_polar<> Distribution;
 
@@ -275,11 +317,10 @@ int main(int argc, char * argv[])
 	}
 #endif
 #ifdef QUANTLIB_NORMAL_BOX_MULLER_POLAR
-	// normal_box_muller_polar
 	{
-		typedef qfcl::random::standard::QuantLib_normal_box_muller_polar<> Distribution;
+		typedef qfcl::random::QuantLib_normal_box_muller_polar<> Distribution;
 
-		typedef qfcl::random::standard::variate_generator<Engine, Distribution> Generator;
+		typedef qfcl::random::variate_generator<Engine, Distribution> Generator;
 		Engine e;
 		Distribution d;
 		Generator gen(e, d);
@@ -304,10 +345,175 @@ int main(int argc, char * argv[])
 
 		show_timing_results(
 			result, iterations, 
+			qfcl::names::name_or_typename(gen), qfcl::names::name(Generator::method()), 
+			cpu_frequency);
+	}
+#endif
+#ifdef QUANTLIB_NATIVE_NORMAL_BOX_MULLER_POLAR
+	{
+		typedef QuantLib::MersenneTwisterUniformRng	UniformGenerator;
+		UniformGenerator uniformGen;
+
+		typedef QuantLib::BoxMullerGaussianRng<UniformGenerator> Generator;
+
+		Generator gen(uniformGen);
+
+		//typedef qfcl::random::standard::QuantLib_normal_box_muller_polar<> Distribution;
+
+		//typedef qfcl::random::standard::variate_generator<Engine, Distribution> Generator;
+		//Engine e;
+		//Distribution d;
+		//Generator gen(e, d);
+	
+		volatile Generator::sample_type::value_type value;
+												
+		timer_t timer;								
+												
+		uint64_t start = timer();					
+												
+		for (CounterType i = 0; i < iterations; ++i)		
+		{											
+			value = gen.next().value;		
+#ifdef SHOW_VALUES
+				cout << boost::format("Random variate %|1$3|: %|2$20.10|.\n") % i % value; 
+#endif
+		}											
+												
+		uint64_t end = timer();						
+												
+		uint64_t result = end - start;	
+
+		show_timing_results(
+			result, iterations, 
 			qfcl::names::name_or_typename(gen), string(), //qfcl::names::name_or_typename(Distribution::method()), 
 			cpu_frequency);
 	}
 #endif
+#ifdef QUANTLIB_WRAPPED_NATIVE_NORMAL_BOX_MULLER_POLAR
+	{
+		typedef qfcl::random::QuantLib_BoxMullerGaussianRng<> Generator;
+
+		Generator gen;
+	
+		volatile Generator::result_type value;
+												
+		timer_t timer;								
+												
+		uint64_t start = timer();					
+												
+		for (CounterType i = 0; i < iterations; ++i)		
+		{											
+			value = gen();		
+#ifdef SHOW_VALUES
+				cout << boost::format("Random variate %|1$3|: %|2$20.10|.\n") % i % value; 
+#endif
+		}											
+												
+		uint64_t end = timer();						
+												
+		uint64_t result = end - start;	
+
+		show_timing_results(
+			result, iterations, 
+			qfcl::names::name_or_typename(gen), qfcl::names::name(Generator::method()),
+			cpu_frequency);
+	}
+#endif	
+#ifdef BOOST_NORMAL_ZIGGURAT
+	{
+		typedef qfcl::random::boost_normal_ziggurat<> Distribution;
+
+		typedef boost::random::variate_generator<Engine, Distribution> Generator;
+		Engine e;
+		Distribution d;
+		Generator gen(e, d);
+	
+		volatile Distribution::result_type value;
+												
+		timer_t timer;								
+												
+		uint64_t start = timer();					
+												
+		for (CounterType i = 0; i < iterations; ++i)		
+		{											
+			value = gen();		
+#ifdef SHOW_VALUES
+				cout << boost::format("Random variate %|1$3|: %|2$20.10|.\n") % i % value; 
+#endif
+		}											
+												
+		uint64_t end = timer();						
+												
+		uint64_t result = end - start;	
+
+		show_timing_results(
+			result, iterations, 
+			qfcl::names::name_or_typename(gen), "Ziggurat",
+			cpu_frequency);
+	}
+#endif	
+#ifdef QUANTLIB_NATIVE_NORMAL_ZIGGURAT
+	{
+		typedef QuantLib::ZigguratRng Generator;
+
+		// Use default MT seed.
+		Generator gen(5489);
+	
+		volatile Generator::sample_type::value_type value;
+												
+		timer_t timer;								
+												
+		uint64_t start = timer();					
+												
+		for (CounterType i = 0; i < iterations; ++i)		
+		{											
+			value = gen.next().value;		
+#ifdef SHOW_VALUES
+				cout << boost::format("Random variate %|1$3|: %|2$20.10|.\n") % i % value; 
+#endif
+		}											
+												
+		uint64_t end = timer();						
+												
+		uint64_t result = end - start;	
+
+		show_timing_results(
+			result, iterations, 
+			qfcl::names::name_or_typename(gen), "Ziggurat",
+			cpu_frequency);
+	}
+#endif	
+#ifdef QUANTLIB_NORMAL_ZIGGURAT
+	{
+		typedef qfcl::random::QuantLib_ZigguratRng Generator;
+
+		// Use default MT seed.
+		Generator gen;
+	
+		volatile Generator::result_type value;
+												
+		timer_t timer;								
+												
+		uint64_t start = timer();					
+												
+		for (CounterType i = 0; i < iterations; ++i)		
+		{											
+			value = gen();		
+#ifdef SHOW_VALUES
+				cout << boost::format("Random variate %|1$3|: %|2$20.10|.\n") % i % value; 
+#endif
+		}											
+												
+		uint64_t end = timer();						
+												
+		uint64_t result = end - start;	
+
+		show_timing_results(
+			result, iterations, 
+			qfcl::names::name_or_typename(gen), qfcl::names::name(Generator::method()),
+			cpu_frequency);
+	}
+#endif	
 	cout << "Press Enter to exit.";
 
 	char c;

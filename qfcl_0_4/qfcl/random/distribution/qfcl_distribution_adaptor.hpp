@@ -24,7 +24,7 @@ namespace qfcl {
 namespace random {
 
 // <p>Distribution</p> is any C++ standard distribution.
-template<typename Distribution, typename Method>
+template<typename Distribution, typename Method, typename Standard = Distribution>
 struct qfcl_distribution_adaptor : Distribution
 {
 	// use perfect forwarding for constructors
@@ -38,7 +38,9 @@ struct qfcl_distribution_adaptor : Distribution
 	qfcl_distribution_adaptor(T1 && a1, T2 && a2) 
 		: Distribution( std::forward<T1>(a1), std::forward<T2>(a2) ) {}
 
-	typedef Method method;
+	typedef Method		method;
+	//! standard version of the distribution
+	typedef Standard	standard_type;
 };
 
 }	// namespace random
