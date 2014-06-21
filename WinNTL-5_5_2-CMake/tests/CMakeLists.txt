@@ -27,9 +27,7 @@ foreach( test IN LISTS test_files )
 		set( resource_files ${resource_files} ${CMAKE_CURRENT_SOURCE_DIR}/${test_name}Out )
 	endif()
 	add_executable( ${test_name} ${source_files} ${resource_files} )
-	set_target_properties( ${test_name} PROPERTIES 
-						   COMPILE_DEFINITIONS ${COMPILE_DEFINITIONS}
-						   FOLDER tests )
+	set_target_properties( ${test_name} PROPERTIES FOLDER tests )
 	source_group( "Source Files" FILES ${source_files} )
 	source_group( "Resource Files" FILES ${resource_files} )
 	get_target_property( RUNTIME_DIRECTORY ${test_name} RUNTIME_OUTPUT_DIRECTORY )

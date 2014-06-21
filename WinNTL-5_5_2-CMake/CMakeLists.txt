@@ -145,7 +145,7 @@ endif( NTL_GF2X_LIB )
 #                  [OUTPUT_STRIP_TRAILING_WHITESPACE]
 #                  [ERROR_STRIP_TRAILING_WHITESPACE])
 
-set( COMPILE_DEFINITIONS " " )
+#set( COMPILE_DEFINITIONS "" )
 #message( "COMPILE_DEFINITIONS: " ${COMPILE_DEFINITIONS} )
 
 file( GLOB library_sources src/* )

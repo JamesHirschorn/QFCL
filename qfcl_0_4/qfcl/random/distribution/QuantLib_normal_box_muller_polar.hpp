@@ -30,7 +30,7 @@
 #include <qfcl/random/distribution/uniform_0in_1in.hpp>
 #include <qfcl/random/generator/QuantLib/boxmullergaussianrng.hpp>
 #include <qfcl/random/generator/QuantLib_from_standard_variate_generator_adaptor.hpp>
-#include <qfcl/random/generator/Quantlib_to_standard_variate_generator_adaptor.hpp>
+#include <qfcl/random/generator/QuantLib_to_standard_variate_generator_adaptor.hpp>
 #include <qfcl/random/generator/QuantLib_variate_generator_distribution_adaptor.hpp>
 #include <qfcl/utility/named_adaptor.hpp>
 #include <qfcl/utility/names.hpp>

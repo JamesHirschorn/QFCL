@@ -10,7 +10,7 @@
 # (See accompanying file LICENSE.txt)                                    #
 ##########################################################################
 
-cmake_minimum_required( VERSION 2.8.12 )
+cmake_minimum_required( VERSION 2.8.9 )
 set( BUILD_TYPE_INFO "Choose the type of build, options are: None(CMAKE_C_FLAGS or CMAKE_CXX_FLAGS used), Release, Debug, RelWithDebInfo, MinSizeRel." )
 set( CMAKE_BUILD_TYPE "Release" CACHE STRING ${BUILD_TYPE_INFO} )
 set_property( GLOBAL PROPERTY USE_FOLDERS ON )
