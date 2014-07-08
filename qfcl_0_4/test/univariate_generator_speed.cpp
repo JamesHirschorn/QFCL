@@ -144,20 +144,10 @@ void show_timing_results(uint64_t clock_cycles, CounterType iterations, Generato
 	std::cout 
 		<< boost::format("%1%.\nMethod: %2%\n%|3$18.6e| random numbers/second = %|4$13.4f| nanoseconds/random number = %|5$6.1f| CPU cycles/random number\n")
 			% qfcl::names::name(gen) 
-			% qfcl::names::name(Generator::method())
+	                % qfcl::names::name<typename Generator::method>()
 			% ( iterations / time_taken ) 
 			% ( time_taken * UINT64_C(1000000000) / iterations ) 
 			% ( double(clock_cycles) / iterations);
-	
-	string format = "%1%.\nMethod: %5%\n%|2$18.2f| random numbers/second = %|3$13.8f| nanoseconds/random number = %|4$6.1f| CPU cycles/random number\n";
-
-	std::cout 
-		<< boost::format(format)
-			% distribution_name
-			% ( iterations / time_taken ) 
-			% ( time_taken * UINT64_C(1000000000) / iterations ) 
-			% ( double(clock_cycles) / iterations)
-			% variate_method;
 }
 
 template<typename CounterType, typename Generator>

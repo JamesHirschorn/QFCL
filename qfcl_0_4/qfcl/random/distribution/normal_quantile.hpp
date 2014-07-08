@@ -54,7 +54,7 @@ private:
 template<typename Quantile, typename RealType, typename U01_Dist>
 class normal_quantile 
 	: public qfcl_distribution_adaptor<
-		  standard::normal_quantile<typename Quantile, typename RealType, typename U01_Dist>
+		  standard::normal_quantile<Quantile, RealType, U01_Dist>
 		, variate_method<QUANTILE>
 		>
 {

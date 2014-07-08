@@ -73,7 +73,12 @@ template<class Engine, class RealType >
 class variate_generator<Engine, uniform_0in_1in<RealType>>
 	: public variate_generator_base<Engine, uniform_0in_1in<RealType>>
 {
+    typedef variate_generator_base<Engine, uniform_0in_1in<RealType>> base_type;
 public:
+    QFCL_USING_TYPE(engine_type, base_type);
+    QFCL_USING_TYPE(distribution_type, base_type); 
+    QFCL_USING_TYPE(result_type, base_type);
+
 	//! constructor
     variate_generator(engine_type e = engine_type(), distribution_type d = distribution_type()) 
 		: _eng(e)//, _dist(d)
@@ -102,7 +107,8 @@ private:
 };
 
 template<class Engine, class RealType >
-RealType variate_generator<Engine, uniform_0in_1in<RealType> >::_factor;
+typename variate_generator<Engine, uniform_0in_1in<RealType> >::result_type
+variate_generator<Engine, uniform_0in_1in<RealType> >::_factor;
 
 template<class Engine, class RealType >
 bool variate_generator<Engine, uniform_0in_1in<RealType> >::_initialized = false;
@@ -122,6 +128,9 @@ class variate_generator<Engine, uniform_0in_1in<RealType> >
 		,	uniform_0in_1in<RealType>
 		> base_type;
 public:
+    QFCL_USING_TYPE(engine_type, base_type);
+    QFCL_USING_TYPE(distribution_type, base_type); 
+
 	variate_generator(
 		engine_type const& e, 
 		distribution_type const& d = distribution_type())

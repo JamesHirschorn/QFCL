@@ -71,9 +71,14 @@ class uniform_0in_1ex
 namespace standard {
 template<typename Engine, typename RealType>
 class variate_generator<Engine, uniform_0in_1ex<RealType> >
-	: public variate_generator_base<Engine, uniform_0in_1ex<RealType> >
+	: public variate_generator_base<Engine, uniform_0in_1ex<RealType>>
 {
+  typedef variate_generator_base<Engine, uniform_0in_1ex<RealType>> base_type;
 public:
+    QFCL_USING_TYPE(engine_type, base_type);
+    QFCL_USING_TYPE(distribution_type, base_type); 
+    QFCL_USING_TYPE(result_type, base_type);
+
 	//! default ctor
 	variate_generator() 
 	{
@@ -109,7 +114,8 @@ private:
 };
 
 template<typename Engine, typename RealType>
-RealType variate_generator<Engine, uniform_0in_1ex<RealType> >::_factor;
+typename variate_generator<Engine, uniform_0in_1ex<RealType> >::result_type 
+variate_generator<Engine, uniform_0in_1ex<RealType> >::_factor;
 
 template<typename Engine, typename RealType>
 bool variate_generator<Engine, uniform_0in_1ex<RealType> >::_initialized = false;

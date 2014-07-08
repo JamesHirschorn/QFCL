@@ -20,8 +20,11 @@
 #include <string>
 #include <vector>
 
+#include <boost/mpl/for_each.hpp>
+
 //#include <qfcl/utility/for_each.hpp>
 #include <qfcl/miscellaneous/strings.hpp>
+#include <qfcl/utility/for_each.hpp>
 #include <qfcl/utility/tmp.hpp>
 #include <qfcl/utility/type_traits.hpp>
 
@@ -38,6 +41,12 @@ struct name_tag : T::name
 
 	Uses the \c Name field for types modelling the \c Named Concept, and the typename otherwise.
 */
+template<typename T>
+const char* name()
+{
+    return mpl::c_str<typename name_tag<T>::type>::value;
+}
+
 template<typename T>
 const char * name(T & t)
 {
@@ -101,7 +110,7 @@ vector_of_strings get_name_or_typenames()
 	vector_of_strings result;
 
 	//qfcl::tmp
-		mpl::for_each<List>(detail::get_name_or_typenames_object(result));
+	boost::mpl::for_each<List>(detail::get_name_or_typenames_object(result));
 
 	return result;
 }

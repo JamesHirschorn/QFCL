@@ -428,7 +428,7 @@ void for_each(Sequence1 & seq1, Sequence2 & seq2, Sequence3 & seq3, Sequence4 & 
 		);
 }
 
-}
+}    // namespace fusion
 
 }	// namespace qfcl
 

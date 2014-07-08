@@ -202,8 +202,8 @@ std::pair<RealType, int> generate_int_float_pair(Engine& eng, boost::mpl::true_)
 template<class RealType, std::size_t w, class Engine>
 inline std::pair<RealType, int> generate_int_float_pair(Engine& eng, boost::mpl::false_)
 {
-    int bucket = uniform_int_distribution<>(0, (1 << w) - 1)(eng);
-    RealType r = uniform_01<RealType>()(eng);
+    int bucket = boost::random::uniform_int_distribution<>(0, (1 << w) - 1)(eng);
+    RealType r = boost::random::uniform_01<RealType>()(eng);
     return std::make_pair(r, bucket);
 }
 

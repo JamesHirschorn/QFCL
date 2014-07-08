@@ -106,12 +106,15 @@ namespace QuantLib {
 				, RNG
 				, Real
 				>
-		base_type;
+		base_type;      
+        using base_type::uniformGenerator_;
+        using base_type::firstWeight_;
+        using base_type::secondWeight_;
 	public:
-		explicit BoxMullerGaussianRng(RNG const& uniformGenerator)
+  		explicit BoxMullerGaussianRng(RNG const& uniformGenerator)
 			:  base_type(uniformGenerator)
 		{}
-		friend class base_type;
+		friend base_type;
 	private:
 		//using base_type::uniformGenerator_;
 		std::tuple<Real, Real, Real, Real> 
@@ -152,11 +155,14 @@ namespace QuantLib {
 			, RNG
 			, Real
 			> base_type;
+        using base_type::uniformGenerator_;
+        using base_type::firstWeight_;
+        using base_type::secondWeight_;
 	public:
 		explicit BoxMullerGaussianRng(RNG const& uniformGenerator)
 			:  BoxMullerGaussianRng_base<BoxMullerGaussianRng, RNG, Real>(uniformGenerator)
 		{}
-		friend class base_type;
+		friend base_type;
 	private:
 		std::tuple<Real, Real, Real, Real> 
 		_computation() const;

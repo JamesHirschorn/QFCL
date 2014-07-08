@@ -59,15 +59,15 @@ public:
 	}
 
 	//! operator=
-	QuantLib_normal_box_muller_polar & operator=(QuantLib_normal_box_muller_polar const & other)
+	QuantLib_normal_box_muller_polar& operator=(QuantLib_normal_box_muller_polar const& other)
 	{
 		_u01_gen = other._u01_gen;
-		_normal_gen = &_;
+		_normal_gen = other._normal_gen;
 		return *this;
 	}
 
 	template<typename Engine>
-	result_type operator()(Engine & e)
+	result_type operator()(Engine& e)
 	{
 		_u01_gen(e);
 
@@ -119,6 +119,7 @@ class QuantLib_normal_box_muller_polar
 	//		  standard::QuantLib_normal_box_muller_polar<RealType, U01_Dist>
 	//		, variate_method<BOX_MULLER_POLAR>
 	//		> subbase_type;
+    using base_type::_normal_gen;
 public:
 	using typename base_type::result_type;
 	//using typename subbase_type::result_type;

@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 
 #include <boost/mpl/bool.hpp>
@@ -74,11 +75,11 @@ all_distributions;
 
 /// NOTE: Put somewhere else?
 //! print the \c Engine name concatenated with \c str
-template<typename Engine>
+/*template<typename Engine>
 void print_engine_name(Engine & e, const std::string & str, size_t indent_width = 0)
 {
 	BOOST_TEST_MESSAGE( std::setw(indent_width) << "" 
 												<< qfcl::names::name_or_typename(e)
                                                 << str );
-}
+						}*/
 

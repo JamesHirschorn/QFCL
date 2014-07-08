@@ -77,6 +77,7 @@ class QuantLib_variate_generator_distribution_adaptor<Distribution, 0>
 {
 	typedef detail::QuantLib_variate_generator_distribution_adaptor_base<Distribution> base_type;
 public:
+    QFCL_USING_TYPE(sample_type, base_type);
 	//! <param>e</param> will be used for further calls to <c>_variate_generator</c>.
 	template<typename Engine>
 	void operator()(Engine & e)
@@ -88,7 +89,10 @@ public:
 	{
 		return sample_type(_variate_generator(), 1.0);
 	}
+protected:
+  using base_type::_dist;
 private:
+    QFCL_USING_TYPE(result_type, base_type);
 	std::function<result_type()> _variate_generator;
 };
 
@@ -97,14 +101,18 @@ template<typename Distribution>
 class QuantLib_variate_generator_distribution_adaptor<Distribution, 1>
 	: public detail::QuantLib_variate_generator_distribution_adaptor_base<Distribution>
 {
+    typedef detail::QuantLib_variate_generator_distribution_adaptor_base<Distribution> base_type;
+  using base_type::_dist;
 public:
+    QFCL_USING_TYPE(sample_type, base_type);
+
 	void operator=(QuantLib_variate_generator_distribution_adaptor<Distribution, 1> const & other)
 	{
 		_dist = other._dist;
 		_next = other._next;
 	}
 
-	typename sample_type next() const
+	sample_type next() const
 	{
 		return sample_type(_next, 1.0);
 	}
@@ -115,6 +123,7 @@ public:
 		_next = _dist(e);
 	}
 private:
+    QFCL_USING_TYPE(result_type, base_type);
 	result_type _next;
 };
 
@@ -128,7 +137,12 @@ template<typename Distribution>
 class QuantLib_variate_generator_distribution_adaptor<Distribution, 2>
 	: public detail::QuantLib_variate_generator_distribution_adaptor_base<Distribution>
 {
+    typedef detail::QuantLib_variate_generator_distribution_adaptor_base<Distribution> base_type;
+    QFCL_USING_TYPE(result_type, base_type);
+    using base_type::_dist;
 public:
+    QFCL_USING_TYPE(sample_type, base_type);
+
 	QuantLib_variate_generator_distribution_adaptor()
 		: _front(0), _n(0)
 	{
@@ -143,7 +157,7 @@ public:
 		_n = other._n;
 	}
 
-	typename sample_type next() const
+	sample_type next() const
 	{
 		if (_n > 0)	// buffer has 1 or 2 elements		
 		{

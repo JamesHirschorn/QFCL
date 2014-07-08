@@ -47,19 +47,33 @@ struct is_integral_constant
 {
 };
 
-namespace detail {
-	template<typename T>
-	static RT1 named_test(typename T::name const *);
-	template<typename T>
-	static RT2 named_test(...);
-}	// namespace detail
+#define generate_has_type_member_test(type)				\
+  namespace qfcl {							\
+  namespace traits {							\
+  namespace detail {							\
+    template<typename T>						\
+    static RT1 type##_test(typename T::type const *);			\
+    template<typename T>						\
+    static RT2 type##_test(...);					\
+  }									\
+  \
+  template<typename T>							\
+  struct has_##type##_type : mpl::bool_<sizeof(detail::type##_test<T>(nullptr)) == 1> \
+  {									\
+  };									\
+}} 
 
-//! whether the type \c T satisfies the \c Named concept
-template<typename T>
-struct is_named
-	: mpl::bool_<sizeof(detail::named_test<T>(nullptr)) == 1>
-{
-};
+}}  // namespace qfcl::traits
+
+generate_has_type_member_test(name)
+
+namespace qfcl {
+namespace traits {
+
+  //! whether the type \c T satisfies the \c Named concept
+  template<typename T>
+  struct is_named : has_name_type<T>
+  {};
 
 }	// namespace traits
 

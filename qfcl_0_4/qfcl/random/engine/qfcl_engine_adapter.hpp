@@ -23,7 +23,7 @@ namespace qfcl {
 
 namespace random {
 
-template<typename Engine, typename result_type, typename state_type>
+template<typename Engine, typename ResultType, typename StateType>
 class qfcl_engine_adapter //: public Engine::EngineTraits
 {
 public:
@@ -38,8 +38,8 @@ public:
 	qfcl_engine_adapter(T1 && a1, T2 && a2) 
 		: e( std::forward<T1>(a1), std::forward<T2>(a2) ) {}
 
-	typedef result_type result_type;
-	typedef state_type state;
+	typedef ResultType result_type;
+	typedef StateType state;
 
 	Engine get_engine() const
 	{

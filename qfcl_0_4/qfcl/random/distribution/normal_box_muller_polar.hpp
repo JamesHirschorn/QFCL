@@ -98,7 +98,12 @@ template<typename Engine, typename RealType, typename U01_Dist>
 class variate_generator<Engine, normal_box_muller_polar<RealType, U01_Dist>>
 	: public variate_generator_base<Engine, normal_box_muller_polar<RealType, U01_Dist>>
 {
+    typedef variate_generator_base<Engine, normal_box_muller_polar<RealType, U01_Dist>> base_type;
 public:
+    QFCL_USING_TYPE(engine_type, base_type);
+    QFCL_USING_TYPE(distribution_type, base_type); 
+    QFCL_USING_TYPE(result_type, base_type);
+
 	//! ctor
 	variate_generator(engine_type const& e, distribution_type const& d)
 		: _uniform_generator(e), _valid(false)

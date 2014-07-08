@@ -13,7 +13,7 @@ if( NTL_FOUND )
 	link_directories( ${NTL_LIBRARY_DIRS} )
 	add_library( NTL STATIC IMPORTED )
 	set_target_properties( NTL PROPERTIES 
-                           IMPORTED_LOCATION ${NTL_libname} )
+                           IMPORTED_LOCATION ${NTL_LIBRARY_DIRS}/${NTL_filename} )
 #    message( ${NTL_libname} )
 else()
 	message( SEND_ERROR "NTL not found" )

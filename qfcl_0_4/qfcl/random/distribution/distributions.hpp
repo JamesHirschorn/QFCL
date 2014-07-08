@@ -24,6 +24,26 @@
 
 #include <qfcl/miscellaneous/strings.hpp>
 #include <qfcl/utility/tmp.hpp>
+#include <qfcl/utility/type_traits.hpp>
+
+// needs to be defined at global scope
+generate_has_type_member_test(method)
+/*#define _test(type)				\
+  namespace qfcl { \
+  namespace traits { \
+  namespace detail { \
+	template<typename T>                                                  \
+	static RT1 type##_test(typename T::type const *);                       \
+	template<typename T>                                                  \
+	static RT2 type##_test(...);                                            \
+}	\
+template<typename T>                                                          \
+struct has_##type_##type : mpl::bool_<sizeof(detail::type##_test<T>(nullptr)) == 1>      \
+{                                                                             \
+};\
+}}*/
+    
+ //_test(method)						
 
 namespace qfcl {
 

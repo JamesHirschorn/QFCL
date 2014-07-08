@@ -72,24 +72,37 @@ typedef qfcl::timer::rdtsc_timer timer_type;
 
 // output results
 
-template<typename CounterType>
-void show_timing_results(uint64_t clock_cycles, CounterType iterations, const string & distribution_name, const string & variate_method, double cpu_freq)
+template<typename CounterType, typename Distribution>
+void show_timing_results(uint64_t clock_cycles, CounterType iterations, Distribution const& dist, double cpu_freq,
+			 typename boost::enable_if<qfcl::traits::has_method_type<Distribution>>::type* dummy = nullptr)
 {
 	// time taken in seconds
 	double time_taken = clock_cycles / cpu_freq;
 
-	string format = variate_method.size() > 0
-		? //"%1%.\nMethod: %5%\n%|2$18.2f| random numbers/second = %|3$13.8f| nanoseconds/random number = %|4$6.1f| CPU cycles/random number\n"
-		  "%1%.\nMethod: %5%\n%|2$18.6e| random numbers/second = %|3$13.4f| nanoseconds/random number = %|4$6.1f| CPU cycles/random number\n"
-		: "%1%.\n%|2$18.2f| random numbers/second = %|3$13.8f| nanoseconds/random number = %|4$6.1f| CPU cycles/random number\n%5%";
+	string format = "%1%.\nMethod: %2%\n%|3$18.6e| random numbers/second = %|4$13.4f| nanoseconds/random number = %|5$6.1f| CPU cycles/random number\n";
 
-	std::cout 
-		<< boost::format(format)
-			% distribution_name
-			% ( iterations / time_taken ) 
-			% ( time_taken * UINT64_C(1000000000) / iterations ) 
-			% ( double(clock_cycles) / iterations)
-			% variate_method;
+	std::cout << boost::format(format)
+	    % qfcl::names::name(dist)
+	    % qfcl::names::name<typename Distribution::method>()
+	    % ( iterations / time_taken ) 
+	    % ( time_taken * UINT64_C(1000000000) / iterations ) 
+	    % ( double(clock_cycles) / iterations);
+}
+
+template<typename CounterType, typename Distribution>
+void show_timing_results(uint64_t clock_cycles, CounterType iterations, Distribution const& dist, double cpu_freq,
+			 typename boost::disable_if<qfcl::traits::has_method_type<Distribution>>::type* dummy = nullptr)
+{
+	// time taken in seconds
+	double time_taken = clock_cycles / cpu_freq;
+
+	string format = "%1%.\n%|2$18.2f| random numbers/second = %|3$13.8f| nanoseconds/random number = %|4$6.1f| CPU cycles/random number\n";
+
+	std::cout << boost::format(format)
+	    % qfcl::names::name(dist)
+	    % ( iterations / time_taken ) 
+	    % ( time_taken * UINT64_C(1000000000) / iterations ) 
+	    % ( double(clock_cycles) / iterations);
 }
 
 template<typename CounterType>
@@ -116,11 +129,7 @@ struct timer_object
 		Timer t;
 		auto result = t(dist, engine, iterations);
 
-#ifdef INCLUDE_UNNAMED
-		show_timing_results(result, iterations, qfcl::names::name_or_typename(dist), string(), cpu_frequency);
-#else
-		show_timing_results(result, iterations, qfcl::names::name(dist), qfcl::names::name(Distribution::method()), cpu_frequency);
-#endif // INCLUDE_UNNAMED
+		show_timing_results(result, iterations, dist, cpu_frequency);
 		
 		// diagnostics: show the next num_variate_displayed variates
 		const string out_line = "Random number %1%: %|2$." 

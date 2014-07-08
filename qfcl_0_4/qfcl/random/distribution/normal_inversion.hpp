@@ -164,8 +164,8 @@ private:
     typedef variate_generator< engine_type, uniform_distribution_type > uniform_rng_type;
 
 private:
-    typename engine_type         _eng;
-    typename distribution_type   _dist;
+    engine_type          _eng;
+    distribution_type   _dist;
     
     uniform_distribution_type _uniform_distribution;
     uniform_rng_type     _uniform_rng;

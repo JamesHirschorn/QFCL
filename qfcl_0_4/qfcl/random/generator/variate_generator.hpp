@@ -15,8 +15,8 @@ template<typename Engine, typename Distribution>
 class variate_generator_base
 {
 public:
-	typedef	Engine								engine_type;
-	typedef Distribution						distribution_type;
+	typedef	Engine					engine_type;
+	typedef Distribution				distribution_type;
 	typedef typename Distribution::result_type	result_type;
 };
 

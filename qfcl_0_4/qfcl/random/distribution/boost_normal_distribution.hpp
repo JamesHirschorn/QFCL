@@ -22,6 +22,8 @@
 	\date February 12, 2014
 */
 
+#include <qfcl/defines.hpp>
+
 #include <boost/mpl/string.hpp>
 #include <boost/random/normal_distribution.hpp>
 
@@ -66,7 +68,12 @@ template<typename Engine, typename RealType>
 class variate_generator<Engine, boost_normal_distribution<RealType>>
 	: public variate_generator_base<Engine, boost_normal_distribution<RealType>>
 {
+    typedef variate_generator_base<Engine, boost_normal_distribution<RealType>> base_type;
 public:
+    QFCL_USING_TYPE(engine_type, base_type);
+    QFCL_USING_TYPE(distribution_type, base_type); 
+    QFCL_USING_TYPE(result_type, base_type);
+
 	//! ctor
 	variate_generator(engine_type const& e, distribution_type const& d)
 		: _e(e), _d(d)
@@ -77,7 +84,7 @@ public:
 		return _d(_e);
 	}
 private:
-	engine_type			_e;
+	engine_type		_e;
 	distribution_type	_d;
 };
 }	// namespace standard
@@ -96,6 +103,9 @@ class variate_generator<Engine, boost_normal_distribution<RealType>>
 		,	boost_normal_distribution<RealType>
 		> base_type;
 public:
+    QFCL_USING_TYPE(engine_type, base_type);
+    QFCL_USING_TYPE(distribution_type, base_type); 
+
 	variate_generator(
 		engine_type const& e = engine_type(), 
 		distribution_type const& d = distribution_type())

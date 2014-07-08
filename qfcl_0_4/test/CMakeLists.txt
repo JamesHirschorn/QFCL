@@ -143,11 +143,14 @@ target_link_libraries( UnivariateDistributionSpeedHardCoded QFCL NTL ${Boost_LIB
 set( source_files univariate_generator_speed.cpp utility/cpu_timer.hpp )
 add_executable( UnivariateGeneratorSpeed ${source_files} )
 source_group( "Source Files" FILES ${source_files} )
+message( STATUS ${PREPROCESSOR_DEFINITIONS} )
+message( STATUS "Boost:" ${Boost_LIBRARIES} )
+message( STATUS "QuantLib:" ${QuantLib_LIBRARY} )
 set_target_properties( UnivariateGeneratorSpeed PROPERTIES
 					   FOLDER test/QFCLPerformanceTests
 					   COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINITIONS}"
 					   OUTPUT_NAME univariate_generator_speed )
-target_link_libraries( UnivariateGeneratorSpeed QFCL NTL ${Boost_LIBRARIES} ${QuantLib_LIBRARIES} ) 
+target_link_libraries( UnivariateGeneratorSpeed QFCL NTL ${Boost_LIBRARIES} ${QuantLib_LIBRARY} ) 
 
 set( source_files univariate_generator_speed_hard_coded.cpp utility/cpu_timer.hpp )
 add_executable( UnivariateGeneratorSpeedHardCoded ${source_files} )
